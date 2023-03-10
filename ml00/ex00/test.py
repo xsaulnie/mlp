@@ -3,6 +3,11 @@ from matrix import Vector
 import sys
 
 if __name__ == "__main__":
+    v0 = Matrix([[1,2,3], [1, 2, 3], 3])
+    print((v0 * v1).__repr__())
+
+    print((v0 - v1).__repr__())
+    print(v0.T().__repr__())
     shmat1 = (3, 2)
     print("Matrix from shape : ", shmat1)
     mat1 = Matrix(shmat1)
@@ -62,7 +67,5 @@ if __name__ == "__main__":
     mv1 = Matrix([[0.0, 1.0, 2.0], [0.0, 2.0, 4.0]])
     mv2 = Vector([[1], [2], [3]])
 
-
-    #sys.exit()
     mv1v2 = mv1 * mv2
     print(mv1v2)

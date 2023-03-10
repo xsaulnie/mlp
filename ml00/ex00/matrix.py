@@ -16,7 +16,7 @@ class Matrix:
 
         elif (type(arg) is list):
             for x in arg:
-                if not type(arg) is list:
+                if not type(x) is list:
                     raise TypeError("Matrix: list constructor must be list of list")
                     return
             dim = len(arg[0])
@@ -43,7 +43,10 @@ class Matrix:
             return
 
     def T(self):
-        ret = Matrix((self.shape[1], self.shape[0]))
+        if type(self) is Vector:
+            ret = Vector((self.shape[1], self.shape[0]))
+        else:
+            ret = Matrix((self.shape[1], self.shape[0]))
 
         for x in range(self.shape[1]):
             for y in range(self.shape[0]):
@@ -62,6 +65,8 @@ class Matrix:
             for y1, y2 in zip(x1, x2):
                 lin.append(y1 + y2)
             ret.append(lin)
+        if type(self) is Vector:
+            return(Vector(ret))
         return Matrix(ret)
 
     def __radd__(self, mat):
@@ -85,6 +90,8 @@ class Matrix:
             for y1, y2 in zip(x1, x2):
                 lin.append(y1 - y2)
             ret.append(lin)
+        if type(self) is Vector:
+            return(Vector(ret))
         return Matrix(ret)
 
     def __rsub__(self, mat):
@@ -108,7 +115,9 @@ class Matrix:
             for y in x:
                 lin.append(y / scalar)
             ret.append(lin)
-        return ret
+        if type(self) is Vector:
+            return Vector(ret) 
+        return Matrix(ret)
     def __rtruediv__(self, arg):
         raise NotImplementedError("Matrix: __rtruediv__ division by a Matrix not defined")
 
@@ -120,15 +129,16 @@ class Matrix:
                 for y in x:
                     lin.append(y * arg)
                 ret.append(lin)
-            return (ret)
+            if type(self) is Vector:
+                return(Vector(ret))
+            return (Matrix(ret))
         elif (isinstance(arg, Vector)):
-            #print(arg.shape, self.shape)
             if not (arg.shape[0] == self.shape[1]):
                 raise ValueError("Matrix: __mult__ on vector, wrong dimension")
                 return
-            if (type(self) is Vector):
-                raise NotImplementedError("Vector __mult__ beetwin vectors")
-                return
+            # if (type(self) is Vector):
+            #     raise NotImplementedError("Vector __mult__ beetwin vectors")
+            #     return
             ret = Vector((self.shape[0], 1))
             for idx, lin in enumerate(self.data):
                 sumdot = 0
@@ -141,6 +151,8 @@ class Matrix:
             if not (arg.shape[0] == self.shape[1]):
                 raise ValueError("Matrix: __mult__ multiplication on wrong dimensions")
                 return
+            if type(self) is Vector:
+                ret = Vector((self.shape[0], arg.shape[1]))
             ret = Matrix((self.shape[0], arg.shape[1]))
 
             for cx in range(self.shape[0]):
@@ -161,11 +173,15 @@ class Matrix:
                 for y in x:
                     lin.append(y * arg)
                 ret.append(lin)
-            return (ret)
+            if type(self) is Vector:
+                return Vector(ret)
+            return (Matrix(ret))
         elif isinstance(arg, Matrix):
             if not (self.shape[0] == arg.shape[1]):
                 raise ValueError("Matrix: __rmult__ multiplication on wrong dimensions")
                 return
+            if type(self) is Vector:
+                ret = Vector((self.shape[0], arg.shape[1]))
             ret = Matrix((arg.shape[0], self.shape[1]))
             for cx in range(arg.shape[0]):
                 for cy in range(self.shape[1]):
@@ -205,7 +221,7 @@ class Vector(Matrix):
 
         elif (type(arg) is list):
             for x in arg:
-                if not type(arg) is list:
+                if not type(x) is list:
                     raise TypeError("Vector: list constructor must be list of list")
                     return
             dim = len(arg[0])
@@ -251,8 +267,7 @@ class Vector(Matrix):
         for x, y in zip(self.data, vec.data):
             ret = ret + x[0] * y[0]
         return ret
+    
 
-    def __add__(self, vec):
-        return Vector((super().__add__(vec)).data)
 
     
