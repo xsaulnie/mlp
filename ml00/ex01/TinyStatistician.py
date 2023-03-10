@@ -108,7 +108,7 @@ class TinyStatistician():
         ret = 0
         for x in li:
             ret = ret + (x - mean)**2
-        return (float(ret / lng))
+        return (float(ret / (lng - 1)))
     def std(self, li):
         if not TinyStatistician.check_type(li):
             return None
@@ -120,8 +120,7 @@ class TinyStatistician():
         ret = 0
         for x in li:
             ret = ret + (x - mean)**2
-        return (float(math.sqrt(ret / lng)))
-
+        return (float(math.sqrt(ret / (lng - 1))))
 
 if __name__ == "__main__":
     tstat = TinyStatistician()
