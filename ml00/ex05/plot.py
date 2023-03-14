@@ -17,6 +17,12 @@ def plot(x, y, theta):
         return None
     if (len(x.shape) > 2 or len(y.shape) > 2 or len(theta.shape) > 2):
         return None
+    if (x.dtype != "float64" and x.dtype != "int64"):
+        return None 
+    if (y.dtype != "float64" and y.dtype != "int64"):
+        return None 
+    if (theta.dtype != "float64" and theta.dtype != "int64"):
+        return None 
     if (x.size == 0 or theta.size == 0 or y.size == 0):
         return None
     if (len(theta.shape) == 1):
@@ -29,13 +35,9 @@ def plot(x, y, theta):
         return None
     plt.scatter(x, y)
 
-    print(theta[0], theta[1])
-
     xplot = np.linspace(np.amin(x), np.amax(x), 100)
 
-    print(xplot)
     yplot = xplot * theta[1][0] + theta[0][0]
-    print(yplot)
     plt.plot(xplot, yplot, color='orange')
     plt.show()
 
