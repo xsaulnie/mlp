@@ -34,11 +34,17 @@ def simple_gradient(x, y, theta):
         return None
     grad = np.array([[0.], [0.]])
 
-    X_prime = np.concatenate((np.ones(x.shape[0], dtype=x.dtype).reshape(x.shape[0], 1), x), axis=1)
-    y_hat = np.matmul(X_prime, theta).astype(float)
+    ret = 0
+    for idx in range(y.shape[0]):
+        ret = ret + (theta[0][0] + theta[1][0] * x[idx][0]) - y[idx][0]
+    grad[0] = ret / y.shape[0]
 
-    grad[0] = sum(y_hat - y) / y.shape[0]
-    grad[1] = sum((y_hat - y) * x) /y.shape[0]
+    ret = 0
+    for idx in range(y.shape[0]):
+        ret = ret + ((theta[0][0] + theta[1][0] * x[idx][0]) - y[idx][0]) * x[idx][0]
+    grad[1] = ret / y.shape[0]
+
+
 
     return grad
 
@@ -54,3 +60,4 @@ if __name__ == "__main__":
     print("second exemple")
     theta2 = np.array([1, -0.4]).reshape((-1, 1))
     print(simple_gradient(x, y, theta2))
+
