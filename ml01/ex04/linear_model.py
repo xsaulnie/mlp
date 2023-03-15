@@ -4,7 +4,6 @@ import pandas as pd
 import math as mat
 import sys
 
-
 class FileLoader:
     def load(self, path):
         if (not type(path) is str):
@@ -142,7 +141,7 @@ class MyLinearRegression():
             self.thetas[0][0] = self.thetas[0][0] + 2
 
         self.thetas[0][0] = save
-
+        plt.ylim((10, 140))
         plt.xlabel("Theta1")
         plt.ylabel("Cost function J")
         plt.legend(loc="lower right", frameon=False)
@@ -160,12 +159,12 @@ if __name__ == "__main__":
     Xpill = np.array(data["Micrograms"]).reshape(-1,1)
     Yscore = np.array(data["Score"]).reshape(-1, 1)
 
-    linear_model = MyLinearRegression(np.array([[89.0], [-8]]))
+    linear_model = MyLinearRegression(np.array([[0.0], [0.0]]), max_iter=1500000)
 
     linear_model.fit_(Xpill, Yscore)
+    linear_model.plot_regression(Xpill, Yscore)
     linear_model.plot_loss_function(Xpill, Yscore)
     sys.exit()
-
 
     Y_model = linear_model.predict_(Xpill)
     print("mse :" , MyLinearRegression.mse_(Yscore, Y_model))

@@ -73,7 +73,7 @@ class MyLinearRegression():
             return None
         if (y.shape[0] != y_hat.shape[0]):
             return None
-        return(sum((y_hat - y) * (y_hat - y)) / (2 * y.shape[0]))
+        return((sum((y_hat - y) * (y_hat - y)) / (2 * y.shape[0]))[0])
         
 if __name__ == "__main__":
     print("Main exemple")
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     lr2 = MyLinearRegression(np.array([[1], [1]]), 5e-8, 1500000)
 
-    print("fiting with theta = (1, 1) alpha = 5e-8 max_iter = 1500000")
+    print("fiting with theta = (1, 1) alpha = 5e-8 max_iter = 1500000 ....")
     lr2.fit_(x, y)
 
     print("thetas after fit : ")

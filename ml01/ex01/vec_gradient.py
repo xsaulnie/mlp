@@ -52,4 +52,3 @@ if __name__ == "__main__":
     print(simple_gradient(x, y, theta1))
     print("second exemple")
     print(simple_gradient(x, y, theta2))
-    

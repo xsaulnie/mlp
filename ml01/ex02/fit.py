@@ -73,15 +73,15 @@ def fit_(x, y, theta, alpha, max_iter):
     return new_theta
 
 if __name__ == "__main__":
+    print("Main exemple")
     x = np.array([[12.4956442], [21.5007972], [31.5527382], [48.9145838], [57.5088733]])
     y = np.array([[37.4013816], [36.1473236], [45.7655287], [46.6793434], [59.5585554]])
     theta= np.array([1, 1]).reshape((-1, 1))
 
-    # theta1 = fit_(x, y, theta, alpha=5e-8, max_iter=1500000)
-    # print(theta1)
     print("Value of x and y : ")
     print(x)
     print(y)
+    print("fiting...")
     theta1 = fit_(x, y, theta, alpha=5e-8, max_iter=1500000)
     print("theta after fit : ")
     print(theta1)
@@ -89,4 +89,13 @@ if __name__ == "__main__":
     print("linar regression of y : ")
 
     print(predict(x, theta1))
+    print("Other exemple : ")
+    print("10 random values for x and y = 3.76 * x + 2.28")
+    print("fiting...")
+    randx = np.random.rand(10, 1)
+    ylin = randx * 3.76 + 2.28
+
+    res = fit_(randx, ylin, np.array([[1.], [1.]]), alpha=5e-3, max_iter=1500000)
+    print("theta founded : ", res)
+    print(f"relation y= {res[1][0]} * x + {res[0][0]}")
 
