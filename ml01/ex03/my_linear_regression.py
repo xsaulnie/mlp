@@ -12,6 +12,8 @@ class MyLinearRegression():
             return None
         if thetas.shape[0] != 2:
             return None
+        if thetas.shape[1] != 1:
+            return None
         if (not type(alpha) is float):
             return None
         if not (type(max_iter) is int):
@@ -108,7 +110,3 @@ if __name__ == "__main__":
     print(lr2.loss_elem_(y, y_hat))
 
     print("loss : ", lr2.loss_(y, y_hat))
-    
-
-
-

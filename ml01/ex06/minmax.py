@@ -41,3 +41,4 @@ if __name__== "__main__":
     print("minmax Y")
     Y = np.array([2, 14, -13, 5, 12, 4, -19]).reshape((-1, 1))
     print(minmax(Y))
+
