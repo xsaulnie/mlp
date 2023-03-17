@@ -3,13 +3,13 @@ import numpy as np
 def add_intercept(x):
     """Adds a column of 1's to the non-empty numpy.array x.
     Args:
-    x: has to be a numpy.array of dimension m * n.
+        x: has to be a numpy.array of dimension m * n.
     Returns:
-    X, a numpy.array of dimension m * (n + 1).
-    None if x is not a numpy.array.
-    None if x is an empty numpy.array.
+        X, a numpy.array of dimension m * (n + 1).
+        None if x is not a numpy.array.
+        None if x is an empty numpy.array.
     Raises:
-    This function should not raise any Exception.
+        This function should not raise any Exception.
     """
     if not (isinstance(x, np.ndarray)):
         return None
@@ -20,20 +20,20 @@ def add_intercept(x):
 
     a = np.ones(x.shape[0], dtype=x.dtype).reshape(x.shape[0], 1)
     res = np.concatenate((a, x), axis=1)
-    return (res)
+    return (res.astype(float))
 
 def predict_(x, theta):
     """Computes the vector of prediction y_hat from two non-empty numpy.array.
     Args:
-    x: has to be an numpy.array, a vector of dimension m * 1.
-    theta: has to be an numpy.array, a vector of dimension 2 * 1.
+        x: has to be an numpy.array, a vector of dimension m * 1.
+        theta: has to be an numpy.array, a vector of dimension 2 * 1.
     Returns:
-    y_hat as a numpy.array, a vector of dimension m * 1.
-    None if x and/or theta are not numpy.array.
-    None if x or theta are empty numpy.array.
-    None if x or theta dimensions are not appropriate.
+        y_hat as a numpy.array, a vector of dimension m * 1.
+        None if x and/or theta are not numpy.array.
+        None if x or theta are empty numpy.array.
+        None if x or theta dimensions are not appropriate.
     Raises:
-    This function should not raise any Exceptions.
+        This function should not raise any Exceptions.
     """
 
     if not (isinstance(x, np.ndarray)) or not (isinstance(theta, np.ndarray)):
@@ -56,15 +56,18 @@ def predict_(x, theta):
 if __name__ == "__main__":
     x = np.arange(1, 6)
 
+    print("Exemple1")
     theta1 = np.array([[5], [0]])
     print(predict_(x, theta1))
-
+    print()
+    print("Exemple2")
     theta1 = np.array([[0], [1]])
     print(predict_(x, theta1))
-
+    print()
+    print("Exemple3")
     theta1 = np.array([[5], [3]])
     print(predict_(x, theta1))
-
+    print()
+    print("Exemple4")
     theta1 = np.array([[-3], [1]])
     print(predict_(x, theta1))
-

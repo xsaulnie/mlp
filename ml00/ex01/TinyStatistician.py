@@ -43,7 +43,7 @@ class TinyStatistician():
         else:
             return(float((sort[int(lng / 2 - 1)] + sort[int(lng / 2)]) / 2))
 
-    def quartiles(self, li):
+    def quartile(self, li):
         if not TinyStatistician.check_type(li):
             return None
         lng = len(li)
@@ -55,25 +55,6 @@ class TinyStatistician():
         r2 = math.ceil(lng / 4 * 3)
         return ([float(sort[int(r1 - 1)]), float(sort[int(r2 - 1)])])
 
-        # if lng % 2 == 0:
-        #     q1 = sort[:int(lng / 2)]
-        #     q3 = sort[int(lng / 2):]
-        # else:
-        #     q1 = sort[:int(lng / 2)]
-        #     q3 = sort[int(lng / 2) + 1:]
-        # lq1 = len(q1)
-        # lq3 = len(q3)
-
-        # if (lq1 % 2 == 1):
-        #     t1 = float(q1[int((lq1 + 1)/ 2 - 1)])
-        # else:
-        #     t1 = float((q1[int(lq1 / 2 - 1)] + q1[int(lq1 / 2)]) / 2)
-        
-        # if (lq3 % 2 == 1):
-        #     t3 = float(q3[int((lq3 + 1)/ 2 - 1)])
-        # else:
-        #     t3 = float((q3[int(lq3 / 2 - 1)] + q3[int(lq3 / 2)]) / 2)
-        # return ([t1, t3])
     def percentile(self, x, p):
         if not TinyStatistician.check_type(x):
             return None
@@ -94,7 +75,7 @@ class TinyStatistician():
         ent = int(obs)
         weight = obs - ent
 
-        return (float(round(sort[ent] + (weight * (sort[ent + 1] - sort[ent])), 2)))
+        return (float(sort[ent] + (weight * (sort[ent + 1] - sort[ent]))))
 
 
     def var(self, li):
@@ -108,7 +89,8 @@ class TinyStatistician():
         ret = 0
         for x in li:
             ret = ret + (x - mean)**2
-        return (float(ret / (lng - 1)))
+        return (float(round(ret / (lng - 1), 1)))
+
     def std(self, li):
         if not TinyStatistician.check_type(li):
             return None
@@ -125,38 +107,7 @@ class TinyStatistician():
 if __name__ == "__main__":
     tstat = TinyStatistician()
 
-    # a = [1, 42, 300, 10, 59]
-    # b = np.array([10, 20, 30, 40])
-
-    # print("mean")
-    # print(tstat.mean(a))
-    # print(tstat.mean(b))
-
-    # print("median")
-    # print(tstat.median(a))
-    # print(tstat.median(b))
-
-    # print("quartiles")
-    # print(tstat.quartiles(a))
-    # print(tstat.quartiles(b))
-
-    # print("percentile")
-    # print(tstat.percentile(a, 50))
-    # print(tstat.percentile(b, 25))
-    # print(tstat.percentile(b, 75))
-    # print(tstat.percentile(a,0))
-    # print(tstat.percentile(b, 100))
-
-    # print("variance")
-    # print(tstat.var(a))
-    # print(tstat.var(b))
-
-    # print("standard deviation")
-    # print(tstat.std(a))
-    # print(tstat.std(b))
-
     print("test main")
-
     a = [1, 42, 300, 10, 59]
     print(a)
     print("mean")
@@ -164,14 +115,14 @@ if __name__ == "__main__":
     print("median")
     print(TinyStatistician().median(a))
     print("quartiles")
-    print(TinyStatistician().quartiles(a))
+    print(TinyStatistician().quartile(a))
     print("percentiles")
     print(TinyStatistician().percentile(a, 10))
-    #print("ref : ", np.percentile(np.array(a), 10))
+    print("ref : ", np.percentile(np.array(a), 10))
     print(TinyStatistician().percentile(a, 15))
-    #print("ref : ", np.percentile(np.array(a), 15))
+    print("ref : ", np.percentile(np.array(a), 15))
     print(TinyStatistician().percentile(a, 20))
-    #print("ref : ", np.percentile(np.array(a), 20))
+    print("ref : ", np.percentile(np.array(a), 20))
     print(TinyStatistician().var(a))
     print(TinyStatistician().std(a))
     print("var")

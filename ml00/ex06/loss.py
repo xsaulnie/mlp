@@ -4,14 +4,15 @@ import numpy as np
 def add_intercept(x):
     """Adds a column of 1's to the non-empty numpy.array x.
     Args:
-    x: has to be a numpy.array of dimension m * n.
+        x: has to be a numpy.array of dimension m * n.
     Returns:
-    X, a numpy.array of dimension m * (n + 1).
-    None if x is not a numpy.array.
-    None if x is an empty numpy.array.
+        X, a numpy.array of dimension m * (n + 1).
+        None if x is not a numpy.array.
+        None if x is an empty numpy.array.
     Raises:
-    This function should not raise any Exception.
+        This function should not raise any Exception.
     """
+
     if not (isinstance(x, np.ndarray)):
         return None
     if (x.size == 0):
@@ -21,20 +22,20 @@ def add_intercept(x):
 
     a = np.ones(x.shape[0], dtype=x.dtype).reshape(x.shape[0], 1)
     res = np.concatenate((a, x), axis=1)
-    return (res)
+    return (res.astype(float))
 
 def predict_(x, theta):
     """Computes the vector of prediction y_hat from two non-empty numpy.array.
     Args:
-    x: has to be an numpy.array, a vector of dimension m * 1.
-    theta: has to be an numpy.array, a vector of dimension 2 * 1.
+        x: has to be an numpy.array, a vector of dimension m * 1.
+        theta: has to be an numpy.array, a vector of dimension 2 * 1.
     Returns:
-    y_hat as a numpy.array, a vector of dimension m * 1.
-    None if x and/or theta are not numpy.array.
-    None if x or theta are empty numpy.array.
-    None if x or theta dimensions are not appropriate.
+        y_hat as a numpy.array, a vector of dimension m * 1.
+        None if x and/or theta are not numpy.array.
+        None if x or theta are empty numpy.array.
+        None if x or theta dimensions are not appropriate.
     Raises:
-    This function should not raise any Exceptions.
+        This function should not raise any Exceptions.
     """
 
     if not (isinstance(x, np.ndarray)) or not (isinstance(theta, np.ndarray)):
@@ -70,38 +71,42 @@ def is_vector_column(vec):
 def loss_elem_(y, y_hat):
     """
     Description:
-    Calculates all the elements (y_pred - y)^2 of the loss function.
+        Calculates all the elements (y_pred - y)^2 of the loss function.
     Args:
-    y: has to be an numpy.array, a vector.
-    y_hat: has to be an numpy.array, a vector.
+        y: has to be an numpy.array, a vector.
+        y_hat: has to be an numpy.array, a vector.
     Returns:
-    J_elem: numpy.array, a vector of dimension (number of the training examples,1).
-    None if there is a dimension matching problem between X, Y or theta.
-    None if any argument is not of the expected type.
-    Raises:
-    This function should not raise any Exception.
+        J_elem: numpy.array, a vector of dimension (number of the training examples,1).
+        None if there is a dimension matching problem between X, Y or theta.
+        None if any argument is not of the expected type.
+        Raises:
+        This function should not raise any Exception.
     """
     if (not is_vector_column(y) or not is_vector_column(y_hat)):
         return None
     if (y.shape[0] != y_hat.shape[0]):
         return None
-    J_elem = (y_hat - y) * (y_hat - y)
-    return J_elem
+    J_elem = np.zeros((y.shape[0], 1))
+
+    for idx in range(y.shape[0]):
+        J_elem[idx][0] = (y_hat[idx][0] - y[idx][0]) ** 2 
+    return J_elem.astype(float)
 
 def loss_(y, y_hat):
     """
     Description:
-    Calculates the value of loss function.
+        Calculates the value of loss function.
     Args:
-    y: has to be an numpy.array, a vector.
-    y_hat: has to be an numpy.array, a vector.
+        y: has to be an numpy.array, a vector.
+        y_hat: has to be an numpy.array, a vector.
     Returns:
-    J_value : has to be a float.
-    None if there is a dimension matching problem between X, Y or theta.
-    None if any argument is not of the expected type.
+        J_value : has to be a float.
+        None if there is a dimension matching problem between X, Y or theta.
+        None if any argument is not of the expected type.
     Raises:
-    This function should not raise any Exception.
+        This function should not raise any Exception.
     """
+
     if (not is_vector_column(y) or not is_vector_column(y_hat)):
         return None
     if (y.shape[0] != y_hat.shape[0]):
@@ -122,13 +127,13 @@ if __name__ == "__main__":
     y2 = np.array([2, 14, -13, 5, 12, 4, -19]).reshape(-1, 1)
 
     print("Main Exemple")
-    print("loss_elem y1 y_hat1")
+    print("Exemple 1 loss_elem(y1, y_hat1)")
     print(loss_elem_(y1, y_hat1))
-    print("loss_ y1, y_hat1")
+    print("Exemple 2 loss_(y1, y_hat1)")
     print(loss_(y1, y_hat1))
 
-    print("loss_ y2, y_hat2")
+    print("Exemple 3 loss_(y2, y_hat2)")
     print(loss_(y2, y_hat2))
 
-    print("loss y2, y2")
+    print("Exemple 4 (loss y2, y2) : same data, no loss")
     print(loss_(y2, y2))

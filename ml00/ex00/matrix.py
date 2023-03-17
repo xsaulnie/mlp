@@ -4,6 +4,11 @@ class Matrix:
             if (len(arg) != 2):
                 raise ValueError("Matrix : shape constructor wrong dimension")
                 return
+            if (arg[0] == 0 or arg[1] == 0):
+                self.shape = (0, 0)
+                self.data = [[]]
+                return
+
             self.shape = arg
             self.data = []
 
@@ -15,10 +20,17 @@ class Matrix:
             return
 
         elif (type(arg) is list):
+            if len(arg) == 0:
+                raise TypeError("Matrix : list constructor must contain some raw")
+                return
             for x in arg:
                 if not type(x) is list:
                     raise TypeError("Matrix: list constructor must be list of list")
                     return
+            if len(arg[0]) == 0:
+                self.data = [[]]
+                self.shape = (0,0)
+                return
             dim = len(arg[0])
             for x in arg:
                 if dim != len(x):
@@ -133,25 +145,28 @@ class Matrix:
                 return(Vector(ret))
             return (Matrix(ret))
         elif (isinstance(arg, Vector)):
-            if not (arg.shape[0] == self.shape[1]):
-                raise ValueError("Matrix: __mult__ on vector, wrong dimension")
-                return
-            # if (type(self) is Vector):
-            #     raise NotImplementedError("Vector __mult__ beetwin vectors")
-            #     return
-            ret = Vector((self.shape[0], 1))
-            for idx, lin in enumerate(self.data):
-                sumdot = 0
-                for x, y in zip(lin, arg.data):
-                    #print(x, y)
-                    sumdot = sumdot + x * y[0]
-                ret.data[idx] = [sumdot]
-            return ret
+                    if not (arg.shape[0] == self.shape[1]) or arg.shape[1] != 1:
+                        raise ValueError("Matrix: __mult__ on vector, wrong dimension")
+                        return
+                    # if (type(self) is Vector):
+                    #     raise NotImplementedError("Vector __mult__ beetwin vectors")
+                    #     return
+                    ret = Vector((self.shape[0], 1))
+                    for idx, lin in enumerate(self.data):
+                        sumdot = 0
+                        for x, y in zip(lin, arg.data):
+                            #print(x, y)
+                            sumdot = sumdot + x * y[0]
+                        ret.data[idx] = [sumdot]
+                    return ret
         elif (isinstance(arg, Matrix)):
             if not (arg.shape[0] == self.shape[1]):
                 raise ValueError("Matrix: __mult__ multiplication on wrong dimensions")
                 return
             if type(self) is Vector:
+                print(self.shape, arg.shape)
+                if (not (self.shape[0] == 1 or arg.shape[0] == 1)):
+                    raise ArithmeticError("Vector: __mult__ result is not a vector")
                 ret = Vector((self.shape[0], arg.shape[1]))
             ret = Matrix((self.shape[0], arg.shape[1]))
 
@@ -218,12 +233,18 @@ class Vector(Matrix):
                     lin.append(0)
                 self.data.append(lin)
             return
-
         elif (type(arg) is list):
+            if len(arg) == 0:
+                raise TypeError("Vector : list constructor must contain some raw")
+                return
             for x in arg:
                 if not type(x) is list:
                     raise TypeError("Vector: list constructor must be list of list")
                     return
+            if len(arg[0]) == 0:
+                raise TypeError("Vector: void matrix is not a vector")
+                return
+                
             dim = len(arg[0])
             for x in arg:
 
@@ -267,7 +288,3 @@ class Vector(Matrix):
         for x, y in zip(self.data, vec.data):
             ret = ret + x[0] * y[0]
         return ret
-    
-
-
-    

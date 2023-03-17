@@ -3,16 +3,19 @@ from matrix import Vector
 import sys
 
 if __name__ == "__main__":
-    v0 = Matrix([[1,2,3], [1, 2, 3], 3])
-    print((v0 * v1).__repr__())
+    v0 = Matrix([[1,2,3], [1, 2, 3]])
+    v2 = Matrix([[0, -1, 3], [1,1,1]])
+    v1 = Matrix([[4, -2], [8.5, 3.6], [4, 5]])
+    print("mat mult ", (v0 * v1).__repr__())
 
-    print((v0 - v1).__repr__())
-    print(v0.T().__repr__())
+    print(("substaction", v0 - v2).__repr__())
+    print("transpose", v0.T().__repr__())
     shmat1 = (3, 2)
     print("Matrix from shape : ", shmat1)
     mat1 = Matrix(shmat1)
     print(mat1.__str__())
     print(mat1.__repr__())
+    print()
 
     m1 = Matrix([[0.0, 1.0], [2.0, 3.0], [4.0, 5.0]])
     print(m1)
@@ -54,10 +57,20 @@ if __name__ == "__main__":
     print(mt1 * mt2)
     print("rmult")
     print(mt2.__rmult__(mt1))
-
+    print("line vector")
+    lv = Vector([[1, 2, 3, 4, 5]])
+    print("column vector")
+    cv = Vector([[1], [2], [3], [4], [5]])
+    print(cv)
+    print(cv.shape)
+    print(lv)
+    print(lv.shape)
+    print("Vector from shape")
     print(Vector((8,1)))
+    print(Vector((8, 1)).__repr__())
     v1 = Vector([[0.0], [1.0], [2.0]])
     v2 = Vector([[3.0], [8.0], [6.0]])
+    print("dot product v1.v2")
     print(v1.dot(v2))
     rse = v1 + v2
     print(rse)
@@ -68,4 +81,7 @@ if __name__ == "__main__":
     mv2 = Vector([[1], [2], [3]])
 
     mv1v2 = mv1 * mv2
-    print(mv1v2)
+    print(mv1v2.__repr__())
+
+
+

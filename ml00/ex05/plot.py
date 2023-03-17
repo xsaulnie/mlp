@@ -4,13 +4,13 @@ import numpy as np
 def plot(x, y, theta):
     """Plot the data and prediction line from three non-empty numpy.array.
     Args:
-    x: has to be an numpy.array, a vector of dimension m * 1.
-    y: has to be an numpy.array, a vector of dimension m * 1.
-    theta: has to be an numpy.array, a vector of dimension 2 * 1.
+        x: has to be an numpy.array, a vector of dimension m * 1.
+        y: has to be an numpy.array, a vector of dimension m * 1.
+        theta: has to be an numpy.array, a vector of dimension 2 * 1.
     Returns:
-    Nothing.
+        Nothing.
     Raises:
-    This function should not raise any Exceptions.
+        This function should not raise any Exceptions.
     """
 
     if not (isinstance(x, np.ndarray)) or not (isinstance(theta, np.ndarray) or not (isinstance(y, np.ndarray))):
@@ -32,6 +32,8 @@ def plot(x, y, theta):
     if (len(y.shape) == 1):
         y = np.atleast_2d(y).T
     if (x.shape[1] != 1 or theta.shape[0] != 2 or theta.shape[1] != 1 or y.shape[1] != 1):
+        return None
+    if (x.shape[0] == 0 != y.shape[0]):
         return None
     plt.scatter(x, y)
 

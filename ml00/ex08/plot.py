@@ -14,17 +14,12 @@ def is_vector_column(vec):
         return False
     return True
 
-def is_vector(vec):
-    if (len(vec.shape) == 1):
-        print("changed")
-        vec = np.atleast_2d(vec).T
-
 def plot_with_loss(x, y, theta):
     """Plot the data and prediction line from three non-empty numpy.ndarray.
     Args:
-    x: has to be an numpy.ndarray, a vector of dimension m * 1.
-    y: has to be an numpy.ndarray, a vector of dimension m * 1.
-    theta: has to be an numpy.ndarray, a vector of dimension 2 * 1.
+        x: has to be an numpy.ndarray, a vector of dimension m * 1.
+        y: has to be an numpy.ndarray, a vector of dimension m * 1.
+        theta: has to be an numpy.ndarray, a vector of dimension 2 * 1.
     Returns:
         Nothing.
     Raises:
@@ -59,7 +54,7 @@ def plot_with_loss(x, y, theta):
     cost = np.sum(((y_hat - y) * (y_hat - y)) / (y.shape[0]))
 
     fig = plt.figure()
-    plt.title(f"Cost:{cost}")
+    plt.title("Cost: %.6f" % (cost))
     plt.scatter(x, y)
     xplot = np.linspace(np.amin(x), np.amax(x), 100)
     yplot = xplot * theta[1][0] + theta[0][0]
