@@ -91,7 +91,7 @@ class MyLinearRegression():
 if __name__ == "__main__":
     X = np.array([[1., 1., 2., 3.], [5., 8., 13., 21.], [34., 55., 89., 144.]])
     Y = np.array([[23.], [48.], [218.]])
-    mylr = MyLinearRegression([[1.], [1.], [1.], [1.], [1], ])
+    mylr = MyLinearRegression([[1.], [1.], [1.], [1.], [1]])
 
 
     print("real value of y :")
@@ -117,5 +117,5 @@ if __name__ == "__main__":
 
     print("Loss elems and loss after fit :")
     print(mylr.loss_elem_(Y,y_hat))
-    print(mylr.loss_(Y, y_hat))
+    print("total loss : ", mylr.loss_(Y, y_hat))
     print("The linear regression seeem to be quite successfull :)")

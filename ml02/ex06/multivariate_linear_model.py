@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import math as mat
 import sys
+from tqdm import tqdm
 
 class MyLinearRegression():
     """
@@ -56,7 +57,7 @@ class MyLinearRegression():
         if (x.shape[1] != self.thetas.shape[0] - 1):
             return None
 
-        for it in range(self.max_iter):
+        for it in tqdm(range(self.max_iter)):
             grad = MyLinearRegression.grad_(x, y, self.thetas)
             if True in np.isnan(grad):
                 return None
@@ -108,8 +109,61 @@ def load_data(path):
         ret = pd.read_csv(path)
     except:
         return None
-    print(f"Loading dataset of dimensions {ret.shape[0]} x {ret.shape[1]}")
+    print(f"Loading dataset of dimensions {ret.shape[0]} x {ret.shape[1]}", end='\n\n')
     return ret
+
+def plot_univariate(X, Y, thetas, ft, info):
+    print(f"Linear Regression of Price with {ft} as feature")
+    mylr= MyLinearRegression(thetas, alpha = info[ft]["alpha"], max_iter = info[ft]["iter"])
+    mse_begin = MyLinearRegression.mse_(Y, mylr.predict_(X))
+    print("Mean square error before fiting : %f" % (mse_begin))
+    print("Fit computation...")
+    mylr.fit_(X, Y)
+
+    pred = mylr.predict_(X)
+    mse = MyLinearRegression.mse_(Y, pred)
+    print("Mean square error after fiting : %f, gained : %s" % (mse, mse_begin - mse))
+    print(f"Regression : Price = {mylr.thetas[1][0]} * {ft} + {mylr.thetas[0][0]}", end="\n\n")
+
+    fig = plt.figure()
+    plt.title("%s Univariate Linerar Regression\n Price = %.2f * %s + %.2f\nMSE : %.0f " % (ft, mylr.thetas[1][0], ft, mylr.thetas[0][0], mse))
+    plt.scatter(X, Y, color=info[ft]["cdata"], label="Sell price")
+    plt.scatter(X, pred, color=info[ft]["cpred"], label="Predicted sell price", s=15)
+    plt.xlabel(info[ft]["label"])
+    plt.ylabel("y : sell price (in keuros)")
+    plt.legend(loc="lower right")
+    fig.subplots_adjust(bottom=0.125)
+    fig.subplots_adjust(top=0.85)
+    al = info[ft]["alpha"]
+    it = info[ft]["iter"]
+    fig.text(0.01, 0.005, f"t0=[{thetas[0][0]}, {thetas[1][0]}] alpha={al}, iter={it}", fontsize=8)
+    plt.grid()
+    plt.show()
+
+def plot_multivariate(thetas, ft, info, mse):
+    fig = plt.figure()
+    Y_pred = mylr.predict_(X)
+
+    if (ft == 'Age'):
+        nb = 0
+    elif (ft == 'Thrust_power'):
+        nb = 1
+    elif (ft == 'Terameters'):
+        nb = 2
+    else:
+        return None
+
+    plt.title("Multivariate Linear Regression\n Price in respect to %s\nMSE: %.0f" % (ft, mse))
+    plt.scatter(X[:, nb], Y, color=info[ft]["cdata"], label="Sell price")
+    plt.scatter(X[:, nb], Y_pred, color=info[ft]["cpred"], label="predicted sell price", s=20)
+    plt.xlabel(info[ft]["label"])
+    plt.ylabel("y : sell price (in keuros)")
+    plt.legend(loc="lower right")
+    fig.subplots_adjust(bottom=0.125)
+    fig.subplots_adjust(top=0.85)
+    fig.text(0.01, 0.005, "Price = %.2f * Age + %.2f * Thrust_power + %.2f * Terameters + %.2f" % (thetas[1][0], thetas[2][0], thetas[3][0], thetas[0][0]), fontsize=8)
+    plt.grid()
+    plt.show()
 
 if __name__ == "__main__":
     path_data = "spacecraft_data.csv"
@@ -118,31 +172,33 @@ if __name__ == "__main__":
         print(f"Error loading data from {path_data}")
         sys.exit()
 
-    print("Linear Regression of Price with Age as feature")
-
-    X = df[['Age']].to_numpy()
     Y = df[['Sell_price']].to_numpy()
 
-    mylr_age= MyLinearRegression(thetas=[[500.], [0.]], alpha = 2.5e-3, max_iter = 10000)
-    print("Mean square error before fiting : %f" % (MyLinearRegression.mse_(Y, mylr_age.predict_(X))))
-    mylr_age.fit_(X, Y)
-    
-    age_pred = mylr_age.predict_(X)
-    mse = MyLinearRegression.mse_(Y, age_pred)
-    print("Mean square error after fiting : %f" % (mse))
-    print(f"Regression : Price = {mylr_age.thetas[1][0]} * Age + {mylr_age.thetas[0][0]}")
+    info = {"Age" : {"cdata" : "midnightblue", "cpred" : "deepskyblue", "label" : "x1: age (in years)", "alpha": 2.5e-3, "iter": 500000 }}
+    info.update({"Thrust_power" : {"cdata" : "g", "cpred" : "chartreuse", "label" : "x2: thrust power(in 10Km/s)", "alpha": 2.5e-5 , "iter" : 500000}})
+    info.update({"Terameters" : {"cdata" : "darkviolet", "cpred" : "violet", "label" : "x3 : distance totalizer value of spacecraft (in Tmeters)", "alpha": 2.5e-5 , "iter" : 500000}})  
 
-    fig = plt.figure()
-    plt.title("Age Univariate Linerar Regression\n Price = %.2f * Age + %.2f\nMSE : %.0f " % (mylr_age.thetas[1][0], mylr_age.thetas[0][0], mse))
-    plt.scatter(X, Y, color="midnightblue", label="Sell price")
-    plt.scatter(X, age_pred, color="deepskyblue", label="Predicted sell price", s=20)
-    plt.xlabel("x : age (in years)")
-    plt.ylabel("y : sell price (in keuros)")
-    plt.legend(loc="lower right")
-    fig.subplots_adjust(bottom=0.125)
-    fig.subplots_adjust(top=0.85)
-    fig.text(0.25, 0.005, "thetas=[500, 0] alpha=2.5e-3 iter=500000")
-    plt.show()
-    print("\n\n")
-    
+
+    # plot_univariate(df[['Age']].to_numpy(), Y, [[500.], [0.]], "Age", info)
+    # plot_univariate(df[['Thrust_power']].to_numpy(), Y, [[0.], [4.]], "Thrust_power", info)
+    # plot_univariate(df[['Terameters']].to_numpy(), Y, [[700.],[-2.]], "Terameters", info)
+
+
+    print("Multivariate linear regression of the Price in respect to the Age the Thruse_power and the Terameters")
+    X = df[['Age', 'Thrust_power', 'Terameters']].to_numpy()
+
+    mylr = MyLinearRegression(thetas = [[350.], [-20.0], [5.0], [-2.0]], alpha = 5e-5, max_iter = 10000)
+    print("Mean Square Error before fitting : ", MyLinearRegression.mse_(Y, mylr.predict_(X)))
+    print("Fit computation...")
+    mylr.fit_(X, Y)
+    mse =  MyLinearRegression.mse_(Y, mylr.predict_(X))
+    print("Mean Square Error after fitting : ", mse)
+    print(f"Regression : Price = {mylr.thetas[1][0]} * Age + {mylr.thetas[2][0]} * Thrust_power + {mylr.thetas[3][0]} * Terameters + {mylr.thetas[0][0]}", end="\n\n")
+
+    plot_multivariate(mylr.thetas, "Age", info, mse)
+    plot_multivariate(mylr.thetas, 'Thrust_power', info, mse)
+    plot_multivariate(mylr.thetas, "Terameters", info, mse)
+
+
+
     
