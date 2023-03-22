@@ -5,7 +5,37 @@ import math as mat
 import sys
 from tqdm import tqdm
 
-def add_polynomial_features(x, power):
+def minmax(x):
+    if not (isinstance(x, np.ndarray)):
+        return None
+    if (x.dtype != "float64" and x.dtype != "int64"):
+        return None
+    if (len(x.shape) == 1):
+        x = np.atleast_2d(x).T
+
+    amin = np.amin(x)
+    amax = np.amax(x)
+
+    normi = lambda xi : (xi - amin) / (amax - amin)
+
+    return(normi(x))
+
+def antiminmax(x):
+    if not (isinstance(x, np.ndarray)):
+        return None
+    if (x.dtype != "float64" and x.dtype != "int64"):
+        return None
+    if (len(x.shape) == 1):
+        x = np.atleast_2d(x).T
+
+    amin = np.amin(x)
+    amax = np.amax(x)
+
+    antinormi = lambda xi : xi * (amax - amin) + amin
+
+    return(antinormi(x))
+
+def polynomial_features(x, power):
 
     if (not isinstance(x, np.ndarray) or not type(power) is int):
         return None
@@ -15,13 +45,25 @@ def add_polynomial_features(x, power):
         return None
     if (x.size == 0):
         return None
-    if x.shape[1] != 1:
+
+    if (power < 1):
         return None
-    ret = np.zeros((x.shape[0], power), dtype=x.dtype)
+    if (power == 1):
+        return x
+    ret = np.zeros((x.shape[0], power * x.shape[1]), dtype=x.dtype)
     for lin in range(x.shape[0]):
-        for col in range(power):
-            ret[lin][col] = mat.pow(x[lin], col + 1)
+        for col in range(ret.shape[1]):
+            ret[lin][col] = mat.pow(x[lin][col % x.shape[1]], col + 1)
     return ret
+
+def data_spliter(x, y, proportion):
+
+    data = np.concatenate((x, y), axis = 1)
+    np.random.shuffle(data)
+
+    nb = int(proportion * data.shape[0])
+
+    return((data[0:nb,:-1], data[nb:,:-1], data[0:nb,-1:], data[nb:,-1:]))
 
 class MyLinearRegression():
     """
@@ -130,105 +172,35 @@ def load_data(path):
     print(f"Loading dataset of dimensions {ret.shape[0]} x {ret.shape[1]}", end='\n\n')
     return ret
 
-
-def getmodel(ord, thetas, min, max):
-    x = np.linspace(min, max, 1000)
-    y = np.zeros(x.shape[0])
-
-    for it in range(1, ord + 1):
-        y = y + thetas[it][0] * (x ** it)
-    return (y + thetas[0][0])
-
-def plot_order(X, Y, order, info):
-    if (type(order) is not int):
-        return None
-    if (order < 1):
-        return None
-
-    mylr = MyLinearRegression(thetas=info["thetas"], alpha = info["alpha"], max_iter=info["iter"])
-    if (mylr is None):
-        return None
-    X = add_polynomial_features(X, order)
-    print(f"Polynomial Regression of Score, from Micrograms of order {order} fitting...")
-    mylr.fit_(X, Y)
-    mse = MyLinearRegression.mse_(Y, mylr.predict_(X))
-    print(f"Mean Square Error of polynomial order {order} :", mse)
-
-    plt.title("Polynomial Linear Regression, order %d\nMSE : %.2f" % (order, mse))
-    plt.scatter(X[:, 0], Y, label="Score data")
-    xplot = np.linspace(0, 7, 1000)
-    yplot = getmodel(order, mylr.thetas, 0, 7)
-    plt.plot(xplot, yplot, color='orange', label="Prediction model")
-    plt.grid()
-    plt.xlabel("Micrograms")
-    plt.ylabel("Score")
-    plt.legend(loc="upper right")
-    plt.show()
+def poly_reg(X, Y, Xtest, Ytest, info, order):
+    mylr = MyLinearRegression(thetas=info["theta"], alpha=info["alpha"], max_iter=info["iter"])
+    X = polynomial_features(X, order)
+    ret = mylr.fit_(X, Y)
+    mse=MyLinearRegression.mse_(Ytest, mylr.predict_(Xtest))
     return (mylr.thetas, mse)
 
-def plot_all_order(X, Y, thetas_list):
-    plt.title("Polynomial models comparaison")
-    plt.scatter(X, Y, label ="Score data")
-    xplot = np.linspace(1, 6.5, 1000)
-    for order in range(1, 7):
-        yplot = getmodel(order, thetas_list[order - 1], 1, 6.5)
-        plt.plot(xplot, yplot, label=f"Model order {order}")
-    plt.grid()
-    plt.xlabel("Micrograms")
-    plt.ylabel("Score")
-    plt.legend(loc="upper right")
-    plt.show()
-
-def plot_mseorder(mse):
-    plt.bar([1,2,3,4,5,6], mse, color='g')
-    plt.title("Mean Square Error by the order of the Polynomial hypothesis")
-    plt.xlabel("Polynomial order")
-    plt.ylabel("MSE")
-    plt.grid(False)
-    plt.show()
-
 if __name__ == "__main__":
-    path_data = "are_blue_pills_magics.csv"
+
+    test = np.array([[10., 20.], [30., 40.]])
+    print(test)
+    test = minmax(test)
+    print(test)
+    test = antiminmax(test)
+    print (test)
+    sys.exit()
+    path_data='space_avocado.csv'
     df = load_data(path_data)
     if df is None:
         print(f"Error loading data from {path_data}")
         sys.exit()
 
-    X = df[['Micrograms']].to_numpy()
-    Y = df[['Score']].to_numpy()
 
-    models = []
+    X = df[['weight', 'prod_distance', 'time_delivery']].to_numpy()
+    Y = df[['target']].to_numpy()
 
-    models.append(plot_order(X, Y, 1, {"thetas" : [[80.], [-1]], "alpha" : 1e-4, "iter" : 100000}))
-    models.append(plot_order(X, Y, 2, {"thetas" : [[90.], [-2.], [0.]], "alpha" : 1e-4, "iter" : 10000})) #1000000
-    models.append(plot_order(X, Y, 3, {"thetas" : [[80.], [-2.], [-1], [0.]], "alpha" : 5e-5, "iter" : 20000})) #2000000
-    models.append(plot_order(X, Y, 4, {"thetas" : [[-20.], [160.], [-80.], [10.], [-1.]], "alpha" : 1e-6, "iter" : 100000}))
-    models.append(plot_order(X, Y, 5, {"thetas" : [[1140.], [-1850.], [1110.], [-305.], [40.], [-2.]], "alpha" : 1e-8, "iter" : 100000}))
-    models.append(plot_order(X, Y, 6, {"thetas" : [[9110.], [-18015.], [13400.], [-4935.], [966.], [-96.4], [3.86]], "alpha" : 1e-9, "iter" : 100000}))
+    (Xtrain, Xtest, Ytrain, Ytest) = data_spliter(X, Y, 0.5)
 
+    ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[200000.], [4700.], [150.], [8000.]], "alpha" : 4e-7, "iter" : 2000000}, 1)
 
-    # nmodel = [  (np.array([[86.59615802], [-8.50807802]]), 37.202119516641645),
-    #             (np.array([[ 91.66487272], [-10.70024646], [  0.21723842]]), 35.87441158826055),
-    #             (np.array([[83.16336197], [-0.4368116 ], [-3.02449415], [ 0.29311415]]), 35.11127045446138), 
-    #             (np.array([[-19.89813642], [160.44390576], [-78.44453714], [ 14.08750955], [ -0.86765175]]), 30.634081890295086),
-    #             (np.array([[ 1139.99642187], [-1850.01627367], [ 1109.93317206], [ -305.24487586], [   39.32236058], [   -1.9269841 ]]), 29.275254916910164),
-    #             (np.array([[ 9.10999996e+03], [-1.80150000e+04], [ 1.34000005e+04], [-4.93499661e+03], [ 9.66015420e+02], [-9.63512430e+01], [ 3.85465730e+00]]), 4.0682650199467005)]
-
-
-    plot_mseorder([x[1] for x in models])
-    plot_all_order(X, Y, [x[0] for x in models])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    print (ret)
 
