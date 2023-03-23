@@ -4,36 +4,44 @@ import pandas as pd
 import math as mat
 import sys
 from tqdm import tqdm
+from sklearn.preprocessing import MinMaxScaler
 
-def minmax(x):
-    if not (isinstance(x, np.ndarray)):
+def minmax(train, test):
+    if not (isinstance(train, np.ndarray) or not isinstance(test, np.ndarray)):
         return None
-    if (x.dtype != "float64" and x.dtype != "int64"):
+    if (train.dtype != "float64" and train.dtype != "int64"):
         return None
-    if (len(x.shape) == 1):
-        x = np.atleast_2d(x).T
-
-    amin = np.amin(x)
-    amax = np.amax(x)
-
-    normi = lambda xi : (xi - amin) / (amax - amin)
-
-    return(normi(x))
-
-def antiminmax(x):
-    if not (isinstance(x, np.ndarray)):
+    if (test.dtype != "float64" and test.dtype != "int64"):
         return None
-    if (x.dtype != "float64" and x.dtype != "int64"):
+    if (len(train.shape) != 2 or len(test.shape) != 2):
         return None
-    if (len(x.shape) == 1):
-        x = np.atleast_2d(x).T
+    if (train.size == 0 or test.size == 0):
+        return None
 
-    amin = np.amin(x)
-    amax = np.amax(x)
+    xtrain = np.copy(train)
+    xtest = np.copy(test)
 
-    antinormi = lambda xi : xi * (amax - amin) + amin
+    for col in range(xtrain.shape[1]):
+        amin = np.amin(xtrain[:, col])
+        amax = np.amax(xtrain[:, col])
+        for lin in range(xtrain.shape[0]):
+            xtrain[lin][col] = (xtrain[lin][col] - amin) / (amax - amin)
+        for lin2 in range(xtest.shape[0]):
+            xtest[lin2][col] = (xtest[lin2][col] - amin) / (amax - amin)       
 
-    return(antinormi(x))
+    return (xtrain, xtest)
+
+
+def antiminmax(train, test):
+    xtest = np.copy(test)
+
+    for col in range(train.shape[1]):
+        amin = np.amin(train[:, col])
+        amax = np.amax(train[:, col])
+        for lin in range(xtest.shape[0]):
+            xtest[lin][col] = xtest[lin][col] * (amax - amin) + amin       
+
+    return xtest
 
 def polynomial_features(x, power):
 
@@ -56,14 +64,21 @@ def polynomial_features(x, power):
             ret[lin][col] = mat.pow(x[lin][col % x.shape[1]], col + 1)
     return ret
 
-def data_spliter(x, y, proportion):
+def data_spliter(x, y, proportion, normilize=False):
 
     data = np.concatenate((x, y), axis = 1)
     np.random.shuffle(data)
 
     nb = int(proportion * data.shape[0])
 
-    return((data[0:nb,:-1], data[nb:,:-1], data[0:nb,-1:], data[nb:,-1:]))
+    train = data[0:nb, :]
+    test = data[nb:, :]
+
+    if normilize == True:
+        (ntrain, ntest) = minmax(train, test)
+    return((ntrain[:,:-1], ntest[:,:-1], ntrain[:,-1:], ntest[:,-1:], train, test))
+
+    return((train[:,:-1], test[:,:-1], train[:,-1:], test[:,-1:]))
 
 class MyLinearRegression():
     """
@@ -176,18 +191,19 @@ def poly_reg(X, Y, Xtest, Ytest, info, order):
     mylr = MyLinearRegression(thetas=info["theta"], alpha=info["alpha"], max_iter=info["iter"])
     X = polynomial_features(X, order)
     ret = mylr.fit_(X, Y)
-    mse=MyLinearRegression.mse_(Ytest, mylr.predict_(Xtest))
+    #print(mylr.predict_(Xtest))
+    mse=MyLinearRegression.mse_(Ytest, mylr.predict_(polynomial_features(Xtest, order)))
     return (mylr.thetas, mse)
 
 if __name__ == "__main__":
 
-    test = np.array([[10., 20.], [30., 40.]])
-    print(test)
-    test = minmax(test)
-    print(test)
-    test = antiminmax(test)
-    print (test)
-    sys.exit()
+    # test = np.array([[0., 4., 8.], [1., 3., 6.], [2., 7., -3.]])
+    # print(test)
+    # (nt, nt) = minmax(test, test)
+    # print(nt)
+    # res = antiminmax(test, nt)
+    # print(res)
+    # sys.exit()
     path_data='space_avocado.csv'
     df = load_data(path_data)
     if df is None:
@@ -198,9 +214,40 @@ if __name__ == "__main__":
     X = df[['weight', 'prod_distance', 'time_delivery']].to_numpy()
     Y = df[['target']].to_numpy()
 
-    (Xtrain, Xtest, Ytrain, Ytest) = data_spliter(X, Y, 0.5)
+    (Xtrain, Xtest, Ytrain, Ytest, Rtrain, Rtest) = data_spliter(X, Y, 0.5, normilize=True)
 
-    ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[200000.], [4700.], [150.], [8000.]], "alpha" : 4e-7, "iter" : 2000000}, 1)
+    #ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[200000.], [4700.], [150.], [8000.]], "alpha" : 4e-7, "iter" : 2000000}, 1)
+    #ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[0.1], [0.6], [0.], [0.]], "alpha" : 1e-3, "iter" : 2000000}, 1)
+    #ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[0.], [0.], [0.], [0.], [0.], [0,], [0.]], "alpha" : 1e-3, "iter" : 2000000}, 2)
+    #ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[0.], [0.], [0.], [0.], [0.], [0,], [0.], [0.], [0.], [0.]], "alpha" : 1e-3, "iter" : 2000000}, 3)
+    #ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[0.], [0.], [0.], [0.], [0.], [0,], [0.], [0.], [0.], [0.], [0.], [0.], [0.]], "alpha" : 1e-2, "iter" : 2000000}, 4)
+    # print (ret)
 
-    print (ret)
 
+    resultheta = np.array([[ 1.85634762e-01],
+       [ 9.03278408e-01],
+       [-7.62614727e-01],
+       [-9.11332548e-03],
+       [-3.65514205e-01],
+       [ 1.24867537e+00],
+       [ 6.82091855e-03],
+       [ 2.34914225e-01],
+       [-5.96444812e-02],
+       [ 1.12623643e-03],
+       [-5.79239440e-02],
+       [-3.35464960e-01],
+       [-3.21080547e-03]])
+
+    X_prime = np.concatenate((np.ones((Xtest.shape[0], 1)), polynomial_features(Xtest, 4)), axis=1).astype(float)
+    print(X_prime.shape)
+    print(resultheta.shape)
+    Y_hat =  (np.matmul(X_prime, resultheta).astype(float))
+    print(Y_hat.shape)
+    print(Rtrain.shape)
+    Y_hat = antiminmax(Rtrain[:, -1:], Y_hat)
+
+    plt.scatter(Rtest[:, 1], Rtest[:, -1:], s = 10)
+    plt.scatter(Rtest[:, 1], Y_hat, s = 3)
+    plt.show()
+
+    
