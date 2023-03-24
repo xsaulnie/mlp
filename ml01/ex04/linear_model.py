@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import math as mat
 import sys
+from tqdm import tqdm
 
 class FileLoader:
     def load(self, path):
@@ -65,8 +66,10 @@ class MyLinearRegression():
         if not MyLinearRegression.vec_col(x) or not MyLinearRegression.vec_col(y):
             return None
         new_theta = np.copy(self.thetas).astype(float)
-        for it in range(self.max_iter):
+        for it in tqdm(range(self.max_iter)):
             grad = MyLinearRegression.simple_gradient(x, y, new_theta)
+            if (np.isnan(grad).any()):
+                return None
             new_theta[0][0] = new_theta[0][0] - (self.alpha * grad[0][0])
             if mat.isnan(new_theta[0][0]):
                 return None
@@ -107,19 +110,25 @@ class MyLinearRegression():
         fig = plt.figure()
         y_hat = self.predict_(x)
         mse = MyLinearRegression.mse_(y, y_hat) 
-        plt.title(f"Linear Regression, theta {self.thetas}, mse {mse}")
-        plt.scatter(x, y, color='blue', label='Strue')
+        plt.title("Linear Regression of the Score from the Quantity of blue pill\n θ0 : %.2f θ1 : %.2f\nMean Square Error : %.2f" % (self.thetas[0][0], self.thetas[1][0], mse))
 
+        plt.scatter(x, y, color='blue', label='Strue')
         plt.scatter(x, y_hat, color = 'green', label='Spredict')
+
+        for idx in range(x.shape[0]):
+            plt.vlines(x[idx], y[idx], y_hat[idx], color='red', linestyles='dotted')
+
 
         xplot = np.linspace(np.amin(x), np.amax(x), 100)
         yplot = xplot * self.thetas[1][0] + self.thetas[0][0]
-        plt.plot(xplot, yplot, '--', color='green', label='Reg')
+        plt.plot(xplot, yplot, '--', color='green', label='Regression')
         plt.legend(loc="upper center", ncol=3, frameon=False)
         plt.xlabel("Quantity of blue pill (in micrograms)")
         plt.ylabel("Space driving score")
+        plt.subplots_adjust(top=0.82)
 
         plt.show()
+
     def plot_loss_function(self, x, y):
 
         fig = plt.figure()
@@ -142,36 +151,35 @@ class MyLinearRegression():
 
         self.thetas[0][0] = save
         plt.ylim((10, 140))
-        plt.xlabel("Theta1")
-        plt.ylabel("Cost function J")
+        plt.xlabel("θ1")
+        plt.ylabel("Cost function J(θ0, θ1)")
+        plt.title("Evolution of the loss function J as a function of θ1 for different values of θ0")
         plt.legend(loc="lower right", frameon=False)
     
         plt.show()
 
 if __name__ == "__main__":
+    pathcsv = "are_blue_pills_magics.csv"
     loader = FileLoader()
-    data = loader.load("are_blue_pills_magics.csv")
+    data = loader.load(pathcsv)
     if (data is None):
         print("Error loading data")
         sys.exit()
 
-
     Xpill = np.array(data["Micrograms"]).reshape(-1,1)
     Yscore = np.array(data["Score"]).reshape(-1, 1)
 
+    print("Creating a linear model of the Score obtained by pilots from the blue pills they have taken.")
+    print("It start with Score = 0 * Pills + 0")
+    print("The linear model is initialized with theta = [[0.0], [0.0]], alpha = 0.001, max_iteration=1500000")
     linear_model = MyLinearRegression(np.array([[0.0], [0.0]]), max_iter=1500000)
 
+    Y_model = linear_model.predict_(Xpill)
+    print("Mean square error of the initial model : " , MyLinearRegression.mse_(Yscore, Y_model), "wich is quite huge !")
+    print("Running the linear regression, Fitting the data...")
     linear_model.fit_(Xpill, Yscore)
+    print(f"Result of the linear regression : Score = {linear_model.thetas[1][0]} * Pills + {linear_model.thetas[0][0]}")
+    print("Mean square error after regression of the new model : " , MyLinearRegression.mse_(Yscore, linear_model.predict_(Xpill)))
+    print("It looks like a good model ;)")
     linear_model.plot_regression(Xpill, Yscore)
     linear_model.plot_loss_function(Xpill, Yscore)
-    sys.exit()
-
-    Y_model = linear_model.predict_(Xpill)
-    print("mse :" , MyLinearRegression.mse_(Yscore, Y_model))
-    linear_model.plot_regression(Xpill, Yscore)
-
-
-    linear_model.fit_(Xpill, Yscore)
-    print("mse :" , MyLinearRegression.mse_(Yscore, linear_model.predict_(Xpill)))
-
-    linear_model.plot_regression(Xpill, Yscore)

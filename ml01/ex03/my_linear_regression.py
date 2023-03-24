@@ -1,10 +1,11 @@
 import numpy as np
 import math as mat
+from tqdm import tqdm
 
 class MyLinearRegression():
     """
     Description:
-    My personnal linear regression class to fit like a boss.
+        My personnal linear regression class to fit like a boss.
     """
 
     def __init__(self, thetas, alpha=0.001, max_iter=1000):
@@ -46,8 +47,10 @@ class MyLinearRegression():
         if not MyLinearRegression.vec_col(x) or not MyLinearRegression.vec_col(y):
             return None
         new_theta = np.copy(self.thetas).astype(float)
-        for it in range(self.max_iter):
+        for it in tqdm(range(self.max_iter)):
             grad = MyLinearRegression.simple_gradient(x, y, new_theta)
+            if (np.isnan(grad).any()):
+                return None
             new_theta[0][0] = new_theta[0][0] - (self.alpha * grad[0][0])
             if mat.isnan(new_theta[0][0]):
                 return None

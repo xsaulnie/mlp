@@ -1,6 +1,6 @@
 import numpy as np
 import math as mat
-
+from tqdm import tqdm
 def vec_col(vec):
     if not (isinstance(vec, np.ndarray)):
         return False
@@ -62,8 +62,10 @@ def fit_(x, y, theta, alpha, max_iter):
         return None
     new_theta = np.array([theta[0], theta[1]]).astype(float)
 
-    for it in range(max_iter):
+    for it in tqdm(range(max_iter)):
         grad = simple_gradient(x, y, new_theta)
+        if (np.isnan(grad).any()):
+            return None
         new_theta[0][0] = new_theta[0][0] - (alpha * grad[0][0])
         if mat.isnan(new_theta[0][0]):
             return None
@@ -81,7 +83,7 @@ if __name__ == "__main__":
     print("Value of x and y : ")
     print(x)
     print(y)
-    print("fiting...")
+    print("fitting...")
     theta1 = fit_(x, y, theta, alpha=5e-8, max_iter=1500000)
     print("theta after fit : ")
     print(theta1)
@@ -89,9 +91,9 @@ if __name__ == "__main__":
     print("linar regression of y : ")
 
     print(predict(x, theta1))
-    print("Other exemple : ")
+    print("Another exemple : ")
     print("10 random values for x and y = 3.76 * x + 2.28")
-    print("fiting...")
+    print("fitting...")
     randx = np.random.rand(10, 1)
     ylin = randx * 3.76 + 2.28
 
