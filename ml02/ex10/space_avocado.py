@@ -197,13 +197,6 @@ def poly_reg(X, Y, Xtest, Ytest, info, order):
 
 if __name__ == "__main__":
 
-    # test = np.array([[0., 4., 8.], [1., 3., 6.], [2., 7., -3.]])
-    # print(test)
-    # (nt, nt) = minmax(test, test)
-    # print(nt)
-    # res = antiminmax(test, nt)
-    # print(res)
-    # sys.exit()
     path_data='space_avocado.csv'
     df = load_data(path_data)
     if df is None:
