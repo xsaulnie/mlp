@@ -4,7 +4,7 @@ import pandas as pd
 import math as mat
 import sys
 from tqdm import tqdm
-from sklearn.preprocessing import MinMaxScaler
+from pickle import *
 
 def minmax(train, test):
     if not (isinstance(train, np.ndarray) or not isinstance(test, np.ndarray)):
@@ -176,6 +176,18 @@ class MyLinearRegression():
         if (y.shape[1] != 1 or y_hat.shape[1] != 1):
             return None
         return((sum((y_hat - y) * (y_hat - y)) / (y.shape[0]))[0])
+    def r2score_(y, y_hat):
+        if not MyLinearRegression.check_matix(y) or not MyLinearRegression.check_matix(y_hat):
+            return (None)
+
+        if y.shape[0] != y_hat.shape[0]:
+            return (None)
+
+        y_mean = sum(y) / y.shape[0]
+
+        r2score = 1 - (np.sum((y_hat - y) * (y_hat - y)) / np.sum((y - y_mean) * (y - y_mean)))
+
+        return (r2score)
 
 def load_data(path):
     if not type(path) is str:
@@ -191,9 +203,10 @@ def poly_reg(X, Y, Xtest, Ytest, info, order):
     mylr = MyLinearRegression(thetas=info["theta"], alpha=info["alpha"], max_iter=info["iter"])
     X = polynomial_features(X, order)
     ret = mylr.fit_(X, Y)
-    #print(mylr.predict_(Xtest))
-    mse=MyLinearRegression.mse_(Ytest, mylr.predict_(polynomial_features(Xtest, order)))
-    return (mylr.thetas, mse)
+    Y_hat = mylr.predict_(polynomial_features(Xtest, order))
+    mse=MyLinearRegression.mse_(Ytest, Y_hat)
+    r2 = MyLinearRegression.r2score_(Ytest, Y_hat)
+    return (mylr.thetas, mse, r2)
 
 if __name__ == "__main__":
 
@@ -203,44 +216,59 @@ if __name__ == "__main__":
         print(f"Error loading data from {path_data}")
         sys.exit()
 
+    f = open("models.pickle", "rb")
+
+    test = load(f)
+
+    print(test)
+
 
     X = df[['weight', 'prod_distance', 'time_delivery']].to_numpy()
     Y = df[['target']].to_numpy()
 
     (Xtrain, Xtest, Ytrain, Ytest, Rtrain, Rtest) = data_spliter(X, Y, 0.5, normilize=True)
 
-    #ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[200000.], [4700.], [150.], [8000.]], "alpha" : 4e-7, "iter" : 2000000}, 1)
-    #ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[0.1], [0.6], [0.], [0.]], "alpha" : 1e-3, "iter" : 2000000}, 1)
-    #ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[0.], [0.], [0.], [0.], [0.], [0,], [0.]], "alpha" : 1e-3, "iter" : 2000000}, 2)
-    #ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[0.], [0.], [0.], [0.], [0.], [0,], [0.], [0.], [0.], [0.]], "alpha" : 1e-3, "iter" : 2000000}, 3)
-    #ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[0.], [0.], [0.], [0.], [0.], [0,], [0.], [0.], [0.], [0.], [0.], [0.], [0.]], "alpha" : 1e-2, "iter" : 2000000}, 4)
-    # print (ret)
-
-
-    resultheta = np.array([[ 1.85634762e-01],
-       [ 9.03278408e-01],
-       [-7.62614727e-01],
-       [-9.11332548e-03],
-       [-3.65514205e-01],
-       [ 1.24867537e+00],
-       [ 6.82091855e-03],
-       [ 2.34914225e-01],
-       [-5.96444812e-02],
-       [ 1.12623643e-03],
-       [-5.79239440e-02],
-       [-3.35464960e-01],
-       [-3.21080547e-03]])
-
+    #resultheta = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : [[0.], [0.], [0.], [0.], [0.], [0,], [0.], [0.], [0.], [0.], [0.], [0.], [0.]], "alpha" : 1e-2, "iter" : 20000}, 4) #2000000}
+    resultheta = test[4]
     X_prime = np.concatenate((np.ones((Xtest.shape[0], 1)), polynomial_features(Xtest, 4)), axis=1).astype(float)
-    print(X_prime.shape)
-    print(resultheta.shape)
-    Y_hat =  (np.matmul(X_prime, resultheta).astype(float))
-    print(Y_hat.shape)
-    print(Rtrain.shape)
+    Y_hat =  (np.matmul(X_prime, resultheta[0]).astype(float))
+    S_hat = Y_hat
     Y_hat = antiminmax(Rtrain[:, -1:], Y_hat)
 
-    plt.scatter(Rtest[:, 1], Rtest[:, -1:], s = 10)
-    plt.scatter(Rtest[:, 1], Y_hat, s = 3)
+
+    plt.subplot(2, 2, 1)
+    plt.xlabel("Weight order (in tons)")
+    plt.subplot(2, 2, 2)
+    plt.xlabel("Produced distance (in Mkm)")
+    plt.subplot(2, 2, 3)
+    plt.xlabel("Delivery time (in days)")
+
+    for it in range(3):
+        plt.subplot(2, 2, it + 1)
+        plt.scatter(Rtest[:, it], Rtest[:, -1:], s=8, label="Price")
+        plt.scatter(Rtest[:, it], Y_hat, s=2, label="Pred")
+        plt.legend(loc="upper center")
+        plt.ylabel("Price (trantorian unit)")
+
+    plt.suptitle("Space Avocado's Price Linear Polynomial regression of order 4\nMSE:%.8f\nR2:%.8f" % (resultheta[1], resultheta[2]))
+
+    plt.subplot(2, 2, 4)
+    xbar = np.arange(4)
+    mse = [test[idx + 1][1] * 1000 for idx in range(4)]
+    r2 = [test[idx + 1][2] for idx in range(4)]
+    plt.bar(xbar, mse, color='b', width=0.3, edgecolor ='grey', label='mean square error')
+    plt.bar(xbar + 0.3 , r2, color='r', width = 0.3, edgecolor ='grey', label='r2 score')
+    plt.xlabel('order of the model')
+    plt.ylabel('value of the metric')
+    plt.legend()
+    plt.xticks([r + 0.3 for r in range(4)], ['1', '2', '3', '4'])
+
+
+
+
+    
+
     plt.show()
+
 
     

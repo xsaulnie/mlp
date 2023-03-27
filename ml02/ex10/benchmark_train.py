@@ -1,43 +1,47 @@
-# array([[ 0.15653878],
-#        [ 0.72021669],
-#        [-0.0326631 ],
-#        [-0.00767024]]), 0.006003080895330107
+from matplotlib import pyplot as plt
+import numpy as np
+import pandas as pd
+import math as mat
+import sys
+from space_avocado import MyLinearRegression
+from space_avocado import polynomial_features
+from space_avocado import data_spliter
+from space_avocado import load_data
+from pickle import *
+
+def poly_reg(X, Y, Xtest, Ytest, info, order):
+    mylr = MyLinearRegression(thetas=info["theta"], alpha=info["alpha"], max_iter=info["iter"])
+    Xp = polynomial_features(X, order)
+    ret = mylr.fit_(Xp, Y)
+    if (ret is None):
+        print("problemos")
+    Y_hat = mylr.predict_(polynomial_features(Xtest, order))
+    mse=MyLinearRegression.mse_(Ytest, Y_hat)
+    r2 = MyLinearRegression.r2score_(Ytest, Y_hat)
+    return (mylr.thetas, mse, r2)
+
+if __name__ == "__main__":
+
+    
+    path_data='space_avocado.csv'
+    df = load_data(path_data)
+    if df is None:
+        print(f"Error loading data from {path_data}")
+        sys.exit()
+    
+    X = df[['weight', 'prod_distance', 'time_delivery']].to_numpy()
+    Y = df[['target']].to_numpy()
+
+    (Xtrain, Xtest, Ytrain, Ytest, Rtrain, Rtest) = data_spliter(X, Y, 0.5, normilize=True)
 
 
+    f = open ("models.pickle","wb")
+    models = {}
 
-# (array([[ 0.17511326],
-#        [ 0.85424415],
-#        [-0.55560452],
-#        [-0.00617175],
-#        [-0.15600261],
-#        [ 0.71195614],
-#        [ 0.00296444]]), 0.0004970407402011644)
+    for it in range(4):
+        print("Space Avocado's Price Polynomial Linear Regression of order %d, alpha = 0.01, iteration = 2000000, thetas starts at 0" % (it + 1))
+        ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : np.zeros(((it + 1) * 3 + 1, 1)), "alpha" : 1e-2, "iter" : 2000000}, it + 1) #2000000}
+        models.update({it + 1 : ret})
+    dump(models, f)
+    f.close()
 
-
-
-# (array([[ 0.17357097],
-#        [ 0.87388578],
-#        [-0.56738051],
-#        [-0.00805781],
-#        [-0.24789976],
-#        [ 0.796139  ],
-#        [ 0.00099389],
-#        [ 0.08135247],
-#        [-0.08676357],
-#        [ 0.00119549]]), 0.0003709973378836354)
-
-
-
-# array([[ 1.85634762e-01],
-#        [ 9.03278408e-01],
-#        [-7.62614727e-01],
-#        [-9.11332548e-03],
-#        [-3.65514205e-01],
-#        [ 1.24867537e+00],
-#        [ 6.82091855e-03],
-#        [ 2.34914225e-01],
-#        [-5.96444812e-02],
-#        [ 1.12623643e-03],
-#        [-5.79239440e-02],
-#        [-3.35464960e-01],
-#        [-3.21080547e-03]]), 7.674619018536477e-05)
