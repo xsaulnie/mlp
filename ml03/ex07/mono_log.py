@@ -216,7 +216,7 @@ def correct_ratio(Y_hat, Ytest, zipc):
                 missed = missed + 1
 
     print("Result : %d correct estimations out of %d test" % (correct, Y_hat.shape[0]))
-    print("Accurancy : %d/%d meaning %.6f %%, with %d false positiv and %d tests missed" % (correct, Y_hat.shape[0], correct/Y_hat.shape[0]*100, false_pos, missed))
+    print("Accurancy : %d/%d meaning %.6f %%, with %d false positiv and %d tests missed (false negativ)" % (correct, Y_hat.shape[0], correct/Y_hat.shape[0]*100, false_pos, missed))
 
 if __name__ == "__main__":
 

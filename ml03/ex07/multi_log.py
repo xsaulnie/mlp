@@ -216,13 +216,48 @@ def correct_ratio(Y_hat, Ytest, zipc):
                 missed = missed + 1
 
     print("Result : %d correct estimations out of %d test" % (correct, Y_hat.shape[0]))
-    print("Accurancy : %d/%d meaning %.6f %%, with %d false positiv and %d tests missed" % (correct, Y_hat.shape[0], correct/Y_hat.shape[0]*100, false_pos, missed))
+    print("Accurancy : %d/%d meaning %.4f %%, with %d false positiv and %d tests missed (false negativ)" % (correct, Y_hat.shape[0], correct/Y_hat.shape[0]*100, false_pos, missed))
+
+def plot_true_data(x, y, true_data, pred_data, errors, label, stat):
+    colors = {0: "pink", 1: "brown", 2 : "red", 3 : "black"}
+
+    plt.subplot(1, 2, 1)
+    plt.title("Citizen's classification of the test dataset")
+    for idx in range(4):
+        plt.scatter(true_data[idx][:, x], true_data[idx][:, y] , label=planet[idx], color=colors[idx])
+    plt.legend()
+    plt.xlabel(label[1])
+    plt.ylabel(label[3])
+
+    plt.subplot(1, 2, 2)
+    plt.title("Classification prediction from the regression")
+    for idx in range(4):
+        plt.scatter(pred_data[idx][:, x], pred_data[idx][:, y], label=planet[idx], color=colors[idx])
+
+    plt.xlabel(label[1])
+    plt.ylabel(label[3])
+    plt.scatter(errors[:, x], errors[:, y], label="errors",color="blue", marker='x', s = 15)
+    plt.legend()
+
+    plt.suptitle(f"Comparaison beetwin prediction and real data\nVisualisation displaying {label[0]} in respect of {label[2]}\nScore : {stat[0]}/{stat[1]} {stat[2]} %")
+    plt.subplots_adjust(top=0.8)
+
+    plt.show()
+
+def correct_model(Y_res, Ytest):
+    correct = 0
+    for idx in range(Ytest.shape[0]):
+        if (float(Y_res[idx]) == Ytest[idx][0]):
+            correct = correct + 1
+    print(f"Result : {correct} citizenship guessed correctly out of {Ytest.shape[0]} citizens of the test dataset", end=", ")
+    print("Precision : %d/%d, %.4f %%" % (correct, Ytest.shape[0], correct/Ytest.shape[0] * 100))
+    return ((correct, Ytest.shape[0], round(correct/Ytest.shape[0] * 100), 2))
+
 
 if __name__ == '__main__':
     planets = {0 : "The flying cities of Venus", 1: " United Nations of Earth", 2 : "Mars Republic", 3 : "The Asteroids' Belt colonies"}
     planet = {0 : "Venus", 1 : "Earth", 2: "Mars", 3: "Asteroid"}
 
-    print("hello")
 
     path_data='solar_system_census.csv'
     path_pred='solar_system_census_planets.csv'
@@ -241,17 +276,34 @@ if __name__ == '__main__':
     (Xtrain, Xtest, Ytrain, Ytest, Rtrain, Rtest) = data_spliter(X, Y, 0.5, normilize=True)
 
 
-
     All_Y = []
     for planx in range(4):
-        print("x")
-        Ytrain = planet_filter(Ytrain, planx)
-        mlr = MyLogisticRegression(np.zeros((4, 1)), max_iter=20000, alpha=1e-2)
-        #mlr.fit_(Xtrain, Ytrain)
+        print(f"{planets[planx]} 's logistical regression alpha=1e-2, max_iteration=2000000 from null thetas, fitting data...")
+        Yptrain = planet_filter(Ytrain, planx)
+        mlr = MyLogisticRegression(np.zeros((4, 1)), max_iter=2000, alpha=1e-2)
+        mlr.fit_(Xtrain, Yptrain)
         Y_hat = mlr.predict_(Xtest)
         All_Y.append(Y_hat)
+        print("theta obtened : [[%.2f], [%.2f], [%.2f], [%.2f]]" % (mlr.theta[0][0], mlr.theta[1][0], mlr.theta[2][0], mlr.theta[3][0]), end=" ")
+        print("with a loss of %.6f" % (mlr.loss_(planet_filter(Ytest, planx), Y_hat)))
+        print(f"Logistical Regression {planet[planx]} vs All precision : ")
+        correct_ratio(prediction_filter(Y_hat, 0.8), Ytest, planx)
+        print()
 
-    #print (All_Y)
+    Y_res = []
+
+    for lin in range(Xtest.shape[0]):
+        maxi = All_Y[0][lin][0]
+        residx = 0
+        for idx in range(4):
+            if (maxi < All_Y[idx][lin][0]):
+                maxi = All_Y[idx][lin][0]
+                residx = idx
+        Y_res.append(residx)
+
+
+    print("After the 4 ONE vs ALL Logistical regression, We predict each citizenship on the test dataset from our model.")
+    stat = correct_model(Y_res, Ytest)
 
     true_data = []
     for planx in range(4):
@@ -259,18 +311,29 @@ if __name__ == '__main__':
         for idx in range(Xtest.shape[0]):
             if (Ytest[idx][0] == float(planx)):
                 data.append(Rtest[idx])
-        #print(data)
         true_data.append(np.array(data))
 
+    pred_data = []
+    for planx in range(4):
+        data = []
+        for idx in range(Xtest.shape[0]):
+            if (Y_res[idx] == planx):
+                data.append(Rtest[idx])
+        pred_data.append(np.array(data))
 
-    #print((true_data[0])[:, 0])
+    errors = []
+    for planx in range(4):
+        data = []
+        for idx in range(Xtest.shape[0]):
+            if (Ytest[idx][0] != float(Y_res[idx])):
+                errors.append(Rtest[idx])
 
-    plt.scatter(true_data[0][:, 0], true_data[0][:, 1] , label=planet[0], color='pink', s = 10)
-    plt.scatter(true_data[1][:, 0], true_data[1][:, 1] , label=planet[1], color='brown', s = 10)
-    plt.scatter(true_data[2][:, 0], true_data[2][:, 1] , label=planet[2], color='red', s = 10)
-    plt.scatter(true_data[3][:, 0], true_data[3][:, 1] , label=planet[3], color='black', s = 10)
+    errors = np.array(errors)
 
-    plt.show()
+    plot_true_data(0, 1, true_data, pred_data, errors, ("Weight", "weight (in pounds)", "Height", "height (in inches)"), stat)
+    plot_true_data(2, 1, true_data, pred_data, errors, ("Bone density", "bone density", "Height", "height (in inches)"), stat)
+    plot_true_data(0, 2, true_data, pred_data, errors, ("Weight", "weight (in pounds)", "Bone density", "bone density"), stat)
+
 
 
 
