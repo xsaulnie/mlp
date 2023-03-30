@@ -1,6 +1,6 @@
 import numpy as np
 
-def check_matix(mat):
+def check_matrix(mat):
     if not (isinstance(mat, np.ndarray)):
         return False
     if mat.dtype != "int64" and mat.dtype != "float64":
@@ -25,7 +25,7 @@ def loss_(y, y_hat):
     Raises:
         This function should not raise any Exception.
     """
-    if not check_matix(y) or not check_matix(y_hat):
+    if not check_matrix(y) or not check_matrix(y_hat):
         return None
     if (y.shape[0] != y_hat.shape[0]):
         return None

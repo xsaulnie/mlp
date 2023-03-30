@@ -25,7 +25,6 @@ class MyLinearRegression():
         self.max_iter = max_iter
         self.thetas = np.array(thetas)
 
-
     @staticmethod
     def check_matix(mat):
         if not (isinstance(mat, np.ndarray)):
@@ -41,7 +40,6 @@ class MyLinearRegression():
     @staticmethod
     def grad_(x, y, theta):
         X_prime = np.concatenate((np.ones((x.shape[0], 1)), x), axis=1).astype(float)
-        grad = np.matmul(X_prime.T, np.matmul(X_prime, theta).astype(float) - y) / y.shape[0]
         return(np.matmul(X_prime.T, (np.matmul(X_prime, theta) - y)) / x.shape[0])
 
     def fit_(self, x, y):

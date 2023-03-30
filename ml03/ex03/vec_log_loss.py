@@ -1,8 +1,7 @@
 import numpy as np
 import math as mat
-import sys
 
-def check_matix(mat):
+def check_matrix(mat):
     if not (isinstance(mat, np.ndarray)):
         return False
     if mat.dtype != "int64" and mat.dtype != "float64":
@@ -23,12 +22,12 @@ def sigmoid_(x):
     if (x.size == 0):
         return None
 
-    sig = lambda x : 1/ (1 + mat.exp(-x))
+    sig = lambda x : 1 / (1 + mat.exp(-x))
 
     return (np.array([[sig(elem)] for elem in x]))
 
 def logistic_predict_(x, theta):
-    if (not check_matix(x) or not check_matix(theta)):
+    if (not check_matrix(x) or not check_matrix(theta)):
         return None
     if theta.shape[1] != 1 or x.shape[1] != theta.shape[0] - 1:
         return None
@@ -49,7 +48,7 @@ def vec_log_loss_(y, y_hat, eps=1e-15):
         This function should not raise any Exception.
     """
 
-    if (not check_matix(y) or not check_matix(y_hat) or not type(eps) is float):
+    if (not check_matrix(y) or not check_matrix(y_hat) or not type(eps) is float):
         return None
     if not y.shape[1] == 1 or not y_hat.shape[1] == 1:
         return None
