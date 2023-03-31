@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 
 class MyRidge():
     """
@@ -41,7 +42,7 @@ class MyRidge():
         return True
 
     @staticmethod
-    def grad_(x, y, theta):
+    def grad_(x, y, theta, lambda_):
         X_prime = np.concatenate((np.ones((x.shape[0], 1)), x), axis=1).astype(float)
         theta_prime = np.copy(theta).astype(float)
         theta_prime[0][0] = 0
@@ -62,9 +63,14 @@ class MyRidge():
         for key in params:
             if not key in valid:
                 return None
-            if key is "thetas":
+            if key == "thetas":
                 if not type(params[key]) is list and not type(params[key]) is np.ndarray:
                     return None
+                if (type(params[key]) is list):
+                    try:
+                        params[key] = np.array(params[key])
+                    except:
+                        return None
             elif not type(params[key]) is type(getattr(self, key)):
                 return None 
 
@@ -82,8 +88,8 @@ class MyRidge():
         if (x.shape[1] != self.thetas.shape[0] - 1):
             return None
 
-        for it in range(self.max_iter):
-            self.thetas = self.thetas - (self.alpha * MyRidge.grad_(x, y, self.thetas))
+        for it in tqdm(range(self.max_iter)):
+            self.thetas = self.thetas - (self.alpha * MyRidge.grad_(x, y, self.thetas, self.lambda_))
             if True in np.isnan(self.thetas):
                 return None
         return self.thetas
@@ -106,7 +112,7 @@ class MyRidge():
         if (y.shape[1] != 1 or y_hat.shape[1] != 1):
             return None
 
-        sup_rige = MyRidge.l2(self.thetas) / (2 * y.shape[0])
+        sup_rige = MyRidge.l2(self.thetas) * self.lambda_
         return(((y_hat - y) * (y_hat - y)) + sup_rige)
 
     def loss_(self, y, y_hat):
@@ -121,6 +127,55 @@ class MyRidge():
 
 if __name__ == "__main__":
     mri = MyRidge([[0.],[0.]])
-    print(mri.get_params_())
+    print("ridge params : ", mri.get_params_())
     mri.set_params_(alpha=8.6, thetas=[[1.0], [1.0]])
-    print(mri.get_params_())
+    print("ridge params : ", mri.get_params_())
+
+    X = np.array([[1., 1., 2., 3.], [5., 8., 13., 21.], [34., 55., 89., 144.]])
+    Y = np.array([[23.], [48.], [218.]])
+    mri.set_params_(thetas=[[1.], [1.], [1.], [1.], [1]], lambda_=0.)
+
+    print("real value of y :")
+    print(Y)
+    print("Prediction before fit :")
+    y_hat = mri.predict_(X)
+    print(y_hat)
+    print("Loss element from each datapoint :")
+    print(mri.loss_elem_(Y, y_hat))
+    print(sum(mri.loss_elem_(Y, y_hat)) / 3)
+    print("Total loss by using a mean on loss elements :")
+    print(mri.loss_(Y, y_hat))
+
+    mri.alpha = 1.6e-4
+    mri.max_iter = 200000
+    print("fiting data for ", mri.get_params_())
+    mri.fit_(X, Y)
+    print("theta result from fiting :")
+    print(mri.thetas)
+    print("prediction after fit :")
+    y_hat = mri.predict_(X)
+    print(y_hat)
+    print("real value of y :")
+    print(Y)
+
+    print("Loss elems and loss after fit :")
+    print(mri.loss_elem_(Y,y_hat))
+    print(sum(mri.loss_elem_(Y, y_hat)) / 6)
+    print("total loss : ", mri.loss_(Y, y_hat))
+    print("The ridge-linear regression seeem to be quite successfull :)")
+
+    mri.set_params_(thetas=[[20.], [3.], [0.], [1.], [0.]], lambda_=0., alpha=1e-4, max_iter=2000000)
+    print("Using regularisation for ridge regression, fiting data for ", mri.get_params_())
+    mri.fit_(X, Y)
+    print("theta result from fiting :")
+    print(mri.thetas)
+    print("prediction after fit :")
+    y_hat = mri.predict_(X)
+    print(y_hat)
+    print("real value of y :")
+    print(Y)
+    print("Loss elems and loss after fit :")
+    print(mri.loss_elem_(Y,y_hat))
+    print(sum(mri.loss_elem_(Y, y_hat)) / 6)
+    print("total loss : ", mri.loss_(Y, y_hat))
+    print("Ridge regression, with improved params, even better !")

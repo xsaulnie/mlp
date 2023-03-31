@@ -13,8 +13,6 @@ def poly_reg(X, Y, Xtest, Ytest, info, order):
     mylr = MyLinearRegression(thetas=info["theta"], alpha=info["alpha"], max_iter=info["iter"])
     Xp = polynomial_features(X, order)
     ret = mylr.fit_(Xp, Y)
-    if (ret is None):
-        print("problemos")
     Y_hat = mylr.predict_(polynomial_features(Xtest, order))
     mse=MyLinearRegression.mse_(Ytest, Y_hat)
     r2 = MyLinearRegression.r2score_(Ytest, Y_hat)

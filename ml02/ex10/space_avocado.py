@@ -222,7 +222,6 @@ if __name__ == "__main__":
 
     print(test)
 
-
     X = df[['weight', 'prod_distance', 'time_delivery']].to_numpy()
     Y = df[['target']].to_numpy()
 
@@ -234,7 +233,6 @@ if __name__ == "__main__":
     Y_hat =  (np.matmul(X_prime, resultheta[0]).astype(float))
     S_hat = Y_hat
     Y_hat = antiminmax(Rtrain[:, -1:], Y_hat)
-
 
     plt.subplot(2, 2, 1)
     plt.xlabel("Weight order (in tons)")
@@ -262,11 +260,6 @@ if __name__ == "__main__":
     plt.ylabel('value of the metric')
     plt.legend()
     plt.xticks([r + 0.3 for r in range(4)], ['1', '2', '3', '4'])
-
-
-
-
-    
 
     plt.show()
 
