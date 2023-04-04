@@ -46,7 +46,7 @@ def reg_log_loss_(y, y_hat, theta, lambda_):
     if (not type(lambda_) is float):
         return None
 
-    logv = np.vectorize(mat.log)
+    logv = np.vectorize(lambda x : mat.log(x) + 1e-15)
     m = y.shape[0]
     return ( -1/ m * ( np.dot(y.T, logv(y_hat)) + np.dot ((np.ones((m, 1)) - y).T, logv( np.ones((m, 1)) - y_hat))) + (lambda_ / (2 * m)) * l2(theta))[0][0]
 

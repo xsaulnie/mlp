@@ -20,7 +20,6 @@ def poly_reg(X, Y, Xtest, Ytest, info, order):
 
 if __name__ == "__main__":
 
-    
     path_data='space_avocado.csv'
     df = load_data(path_data)
     if df is None:
