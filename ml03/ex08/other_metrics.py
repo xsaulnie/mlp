@@ -186,6 +186,8 @@ def f1_score_(y, y_hat, pos_label=1):
                 st['fp'] = st['fp'] + 1
 
 
+    if (st['tp'] == 0):
+        return float(0)
     prec = st['tp'] / (st['tp'] + st['fp'])
     reca = st['tp'] / (st['tp'] + st['fn'])
 

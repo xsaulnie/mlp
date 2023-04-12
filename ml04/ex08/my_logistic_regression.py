@@ -26,7 +26,7 @@ class MyLogisticRegression():
         self.max_iter = max_iter
         self.theta = theta
         self.penalty = penalty
-        self.lambda_ = lambda_ if penalty in self.supported_penalities else 0
+        self.lambda_ = lambda_ if penalty in self.supported_penalities else 0.0
 
     @staticmethod
     def check_matix(mat):
@@ -162,6 +162,8 @@ if __name__ == "__main__":
     print(Y_hat)
     print("loss after fit")
     print(mylr2.loss_(Y, Y_hat))
+
+
 
 
 

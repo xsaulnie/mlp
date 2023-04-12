@@ -263,8 +263,6 @@ def train_best(X, Y, Xtest, Ytest, order, lambda_):
     r2 = MyRidge.r2score_(Ytest, Y_hat)
     return (mri.thetas, mse, r2, Y_hat)
 
-
-
 if __name__ == "__main__":
 
     path_data='space_avocado.csv'
@@ -276,7 +274,7 @@ if __name__ == "__main__":
     X = df[['weight', 'prod_distance', 'time_delivery']].to_numpy()
     Y = df[['target']].to_numpy()
     (Xtrain, Xcross, Xtest, Ytrain, Ycross, Ytest, Rtest, RYtrain) = data_spliter(X, Y, 0.5, normilize=True)
-    print("Spliting data, training : %d x %d, coss validation : %d x %d, testing : %d x %d" % (Xtrain.shape[0], Xtrain.shape[1], Xcross.shape[0],  Xcross.shape[1], Xtest.shape[0], Xtest.shape[1]))
+    print("Spliting data, training : %d x %d, cross validation : %d x %d, testing : %d x %d" % (Xtrain.shape[0], Xtrain.shape[1], Xcross.shape[0],  Xcross.shape[1], Xtest.shape[0], Xtest.shape[1]))
 
     f = open("models.pickle", "rb")
     models = load(f)
@@ -299,7 +297,7 @@ if __name__ == "__main__":
         plt.legend(loc="upper center")
         plt.ylabel("Price (trantorian unit)")
 
-    plt.suptitle("Best model Ridge Regression on Test Dataset\nMse %.2f, r1 : %.2f" % (best[1], best[2]))
+    plt.suptitle("Best model Ridge Regression (Lambda 0, order 4), on Test Dataset\nMse %.5f, r2 : %.5f" % (best[1], best[2]))
 
     plt.show()
 
@@ -333,7 +331,7 @@ if __name__ == "__main__":
 
         plt.plot(lamblist, r2, '-o', color='red')
 
-    plt.suptitle(f"Ridge Regression r2Score\nDepending on lambda and order")
+    plt.suptitle(f"Ridge Regression r2 Score\nDepending on lambda and order")
 
     plt.show()
 

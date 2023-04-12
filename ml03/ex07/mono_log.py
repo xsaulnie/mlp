@@ -275,7 +275,7 @@ if __name__ == "__main__":
     plt.title("Logistical Regression Visualization\nHeight of citizens in respect of their Weight")
     plt.scatter(datazip[:, 0], datazip[:, 1], label=planets[zipc], color="blue")
     plt.scatter(others[:, 0], others[:, 1], label="Other citizens", color="black")
-    plt.scatter(detected[:, 0], detected[:, 1], label= "Prediction for "+planet[zipc], color="red", marker='x', s=20)
+    plt.scatter(detected[:, 0], detected[:, 1], label= "Prediction for "+ planet[zipc], color="red", marker='x', s=20)
     plt.legend()
     plt.xlabel('Weight (pounds)')
     plt.ylabel('Height (inches)')
