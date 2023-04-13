@@ -143,32 +143,6 @@ def data_spliter(x, y, proportion, normilize=False):
 
     return((train, test, ytrain, ytest))
 
-
-def parcing_arg(argv):
-    if len(argv) == 1:
-        print("usage:\tpython mono_log.py -zipcode=x\n\tx being 0, 1, 2 or 3")
-        return -1
-    if len(argv) > 2:
-        print("Error: Wrong number of arguments")
-        return -1
-    kwarg={}
-    sp = argv[1].split('=')
-    if (len(sp) != 2):
-        print("Error : Wrong arguments")
-        return -1
-    kwarg[sp[0]] = sp[1]
-
-    if not "-zipcode" in kwarg.keys():
-        print("Error : Wrong argument")
-        return -1
-    
-    num = kwarg["-zipcode"]
-
-    if (num != "0" and num != "1" and num != "2" and num != "3"):
-        print("Error : Zipcode is not a correct number")
-        return -1
-    return(int(num))
-
 def load_data(path):
     if not type(path) is str:
         return None
@@ -236,7 +210,7 @@ def plot_true_data(x, y, true_data, pred_data, errors, label, stat):
 
     plt.xlabel(label[1])
     plt.ylabel(label[3])
-    plt.scatter(errors[:, x], errors[:, y], label="errors",color="blue", marker='x', s = 15)
+    plt.scatter(errors[:, x], errors[:, y], label="errors",color="blue", marker='x', s=15)
     plt.legend()
 
     plt.suptitle(f"Comparaison beetwin prediction and real data\nVisualisation displaying {label[0]} in respect of {label[2]}\nScore : {stat[0]}/{stat[1]} {stat[2]} %")
