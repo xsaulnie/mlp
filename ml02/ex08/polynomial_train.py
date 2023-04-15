@@ -9,6 +9,8 @@ def add_polynomial_features(x, power):
 
     if (not isinstance(x, np.ndarray) or not type(power) is int):
         return None
+    if (power <=0):
+        return None
     if (x.dtype != "int64" and x.dtype != "float64"):
         return None
     if (len(x.shape) != 2):
@@ -127,9 +129,16 @@ def load_data(path):
         ret = pd.read_csv(path)
     except:
         return None
-    print(f"Loading dataset of dimensions {ret.shape[0]} x {ret.shape[1]}", end='\n\n')
+    print(f"Loading dataset from {path} of dimensions {ret.shape[0]} x {ret.shape[1]}", end='\n\n')
     return ret
 
+def printhetas(thetas):
+    ord = thetas.shape[0]
+    res = ""
+    for idx in reversed(range(1, ord)):
+        res = res + f"{thetas[idx][0]} * x{idx} + "
+
+    return (res + f"{thetas[0][0]}")
 
 def getmodel(ord, thetas, min, max):
     x = np.linspace(min, max, 1000)
@@ -151,6 +160,7 @@ def plot_order(X, Y, order, info):
     X = add_polynomial_features(X, order)
     print(f"Polynomial Regression of Score, from Micrograms of order {order} fitting...")
     mylr.fit_(X, Y)
+    print("resulting model : ", printhetas(mylr.thetas))
     mse = MyLinearRegression.mse_(Y, mylr.predict_(X))
     print(f"Mean Square Error of polynomial order {order} :", mse)
 
@@ -163,6 +173,7 @@ def plot_order(X, Y, order, info):
     plt.xlabel("Micrograms")
     plt.ylabel("Score")
     plt.legend(loc="upper right")
+    plt.subplots_adjust(bottom=0.125)
     plt.show()
     return (mylr.thetas, mse)
 
@@ -200,23 +211,19 @@ if __name__ == "__main__":
     models = []
 
     models.append(plot_order(X, Y, 1, {"thetas" : [[80.], [-1]], "alpha" : 1e-4, "iter" : 100000}))
-    models.append(plot_order(X, Y, 2, {"thetas" : [[90.], [-2.], [0.]], "alpha" : 1e-4, "iter" : 10000})) #1000000
-    models.append(plot_order(X, Y, 3, {"thetas" : [[80.], [-2.], [-1], [0.]], "alpha" : 5e-5, "iter" : 20000})) #2000000
+    models.append(plot_order(X, Y, 2, {"thetas" : [[90.], [-2.], [0.]], "alpha" : 1e-4, "iter" : 1000000}))
+    models.append(plot_order(X, Y, 3, {"thetas" : [[80.], [-2.], [-1], [0.]], "alpha" : 5e-5, "iter" : 2000000}))
     models.append(plot_order(X, Y, 4, {"thetas" : [[-20.], [160.], [-80.], [10.], [-1.]], "alpha" : 1e-6, "iter" : 100000}))
     models.append(plot_order(X, Y, 5, {"thetas" : [[1140.], [-1850.], [1110.], [-305.], [40.], [-2.]], "alpha" : 1e-8, "iter" : 100000}))
     models.append(plot_order(X, Y, 6, {"thetas" : [[9110.], [-18015.], [13400.], [-4935.], [966.], [-96.4], [3.86]], "alpha" : 1e-9, "iter" : 100000}))
 
-
-    # nmodel = [  (np.array([[86.59615802], [-8.50807802]]), 37.202119516641645),
-    #             (np.array([[ 91.66487272], [-10.70024646], [  0.21723842]]), 35.87441158826055),
-    #             (np.array([[83.16336197], [-0.4368116 ], [-3.02449415], [ 0.29311415]]), 35.11127045446138), 
-    #             (np.array([[-19.89813642], [160.44390576], [-78.44453714], [ 14.08750955], [ -0.86765175]]), 30.634081890295086),
-    #             (np.array([[ 1139.99642187], [-1850.01627367], [ 1109.93317206], [ -305.24487586], [   39.32236058], [   -1.9269841 ]]), 29.275254916910164),
-    #             (np.array([[ 9.10999996e+03], [-1.80150000e+04], [ 1.34000005e+04], [-4.93499661e+03], [ 9.66015420e+02], [-9.63512430e+01], [ 3.85465730e+00]]), 4.0682650199467005)]
-
-
     plot_mseorder([x[1] for x in models])
+    print("Greater is the order or the polynomial regression, lower is the mean square error, meaning better is the model.")
     plot_all_order(X, Y, [x[0] for x in models])
+    print("However as we can see the high degree models must contort themself in order to fit the dataset")
+    print("This means that these models only perform good on the training dataset, this is called overfitting, hence the need to test our models on a different dataset.")
+
+
 
 
 

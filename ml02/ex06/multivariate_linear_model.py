@@ -8,7 +8,7 @@ from tqdm import tqdm
 class MyLinearRegression():
     """
     Description:
-    My personnal linear regression class to fit like a boss.
+        My personnal linear regression class to fit like a boss.
     """
 
     def __init__(self, thetas, alpha=0.001, max_iter=1000):
@@ -117,7 +117,7 @@ def plot_univariate(X, Y, thetas, ft, info):
     mylr= MyLinearRegression(thetas, alpha = info[ft]["alpha"], max_iter = info[ft]["iter"])
     mse_begin = MyLinearRegression.mse_(Y, mylr.predict_(X))
     print("Mean square error before fiting : %f" % (mse_begin))
-    print("Fit computation...")
+    print("alpha=%.4f, iterations=%d Fit computation..." % (info[ft]["alpha"], info[ft]["iter"]))
     mylr.fit_(X, Y)
 
     pred = mylr.predict_(X)
@@ -155,7 +155,7 @@ def plot_multivariate(thetas, ft, info, mse):
 
     plt.title("Multivariate Linear Regression\n Price in respect to %s\nMSE: %.0f" % (ft, mse))
     plt.scatter(X[:, nb], Y, color=info[ft]["cdata"], label="Sell price")
-    plt.scatter(X[:, nb], Y_pred, color=info[ft]["cpred"], label="predicted sell price", s=20)
+    plt.scatter(X[:, nb], Y_pred, color=info[ft]["cpred"], label="predicted sell price", s=15)
     plt.xlabel(info[ft]["label"])
     plt.ylabel("y : sell price (in keuros)")
     plt.legend(loc="lower right")
@@ -184,16 +184,19 @@ if __name__ == "__main__":
     # plot_univariate(df[['Terameters']].to_numpy(), Y, [[700.],[-2.]], "Terameters", info)
 
 
-    print("Multivariate linear regression of the Price in respect to the Age the Thruse_power and the Terameters")
+    print("Multivariate linear regression of the Price in respect to the Age, the Thruse_power and the Terameters")
     X = df[['Age', 'Thrust_power', 'Terameters']].to_numpy()
 
-    mylr = MyLinearRegression(thetas = [[350.], [-20.0], [5.0], [-2.0]], alpha = 5e-5, max_iter = 10000)
+    mylr = MyLinearRegression(thetas = [[350.], [-20.0], [5.0], [-2.0]], alpha = 5e-5, max_iter = 500000)
     print("Mean Square Error before fitting : ", MyLinearRegression.mse_(Y, mylr.predict_(X)))
     print("Fit computation...")
     mylr.fit_(X, Y)
     mse =  MyLinearRegression.mse_(Y, mylr.predict_(X))
     print("Mean Square Error after fitting : ", mse)
     print(f"Regression : Price = {mylr.thetas[1][0]} * Age + {mylr.thetas[2][0]} * Thrust_power + {mylr.thetas[3][0]} * Terameters + {mylr.thetas[0][0]}", end="\n\n")
+    print("Mean Square Error obtained is lower than each univariate regressions.")
+    print("The multivariate linear regression is way more successful than the univariate !")
+    print("Indeed it took into account each features of the dataset ;)")
 
     plot_multivariate(mylr.thetas, "Age", info, mse)
     plot_multivariate(mylr.thetas, 'Thrust_power', info, mse)

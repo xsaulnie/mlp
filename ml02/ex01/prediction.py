@@ -39,6 +39,10 @@ def predict_(x, theta):
 if __name__ == "__main__":
     x = np.arange(1,13).reshape((4,-1))
     theta1 = np.array([5, 0, 0, 0]).reshape((-1, 1))
+
+    print("X matrix")
+    print(x)
+
     print("Exemple 1")
     print(predict_(x, theta1))
 

@@ -3,7 +3,7 @@ import numpy as np
 class MyLinearRegression():
     """
     Description:
-    My personnal linear regression class to fit like a boss.
+        My personnal linear regression class to fit like a boss.
     """
 
     def __init__(self, thetas, alpha=0.001, max_iter=1000):
@@ -84,7 +84,7 @@ class MyLinearRegression():
             return None
         if (y.shape[1] != 1 or y_hat.shape[1] != 1):
             return None
-        return((sum((y_hat - y) * (y_hat - y)) / (2 * y.shape[0]))[0])
+        return ((sum((y_hat - y) * (y_hat - y)) / (2 * y.shape[0]))[0])
 
 if __name__ == "__main__":
     X = np.array([[1., 1., 2., 3.], [5., 8., 13., 21.], [34., 55., 89., 144.]])
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     print("Prediction before fit :")
     y_hat = mylr.predict_(X)
     print(y_hat)
-    print("Loss element from each datapoint :")
+    print("Loss element for each datapoint :")
     print(mylr.loss_elem_(Y, y_hat))
     print("Total loss by using a mean on loss elements :")
     print(mylr.loss_(Y, y_hat))

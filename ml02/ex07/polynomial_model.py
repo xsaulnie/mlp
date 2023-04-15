@@ -1,5 +1,6 @@
 import numpy as np
 import math as mat
+
 def add_polynomial_features(x, power):
     """Add polynomial features to vector x by raising its values up to the power given in argument.
     Args:
@@ -13,7 +14,10 @@ def add_polynomial_features(x, power):
     Raises:
         This function should not raise any Exception.
     """
+
     if (not isinstance(x, np.ndarray) or not type(power) is int):
+        return None
+    if (power <= 0):
         return None
     if (x.dtype != "int64" and x.dtype != "float64"):
         return None

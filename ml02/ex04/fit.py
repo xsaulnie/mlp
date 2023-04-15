@@ -49,6 +49,7 @@ def fit_(x, y, theta, alpha, max_iter):
     Raises:
         This function should not raise any Exception.
     """
+
     if not check_matix(x) or not check_matix(y) or not check_matix(theta):
         return None
     if not type(alpha) is float or not type(max_iter) is int:

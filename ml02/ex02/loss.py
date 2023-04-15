@@ -34,7 +34,8 @@ def loss_(y, y_hat):
     if (y_hat.shape[1] != 1):
         return None
 
-    return(np.sum((y_hat - y) * (y_hat - y)) / (2 * y.shape[0]))
+    #return(np.sum((y_hat - y) * (y_hat - y)) / (2 * y.shape[0]))
+    return (np.matmul((y_hat - y).T, (y_hat - y) ))[0][0] / (2 * y.shape[0])
 
 if __name__ == "__main__":
     X = np.array([0, 15, -9, 7, 12, 3, -21]).reshape((-1, 1))

@@ -36,8 +36,10 @@ if __name__ == "__main__":
     models = {}
 
     for it in range(4):
-        print("Space Avocado's Price Polynomial Linear Regression of order %d, alpha = 0.01, iteration = 2000000, thetas starts at 0" % (it + 1))
-        ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : np.zeros(((it + 1) * 3 + 1, 1)), "alpha" : 1e-2, "iter" : 2000000}, it + 1) #2000000}
+        print("Space Avocado's Price Polynomial Linear Regression of order %d, alpha = 0.01, iteration = 2000000, thetas starts at 0, fitting..." % (it + 1))
+        ret = poly_reg(Xtrain, Ytrain,  Xtest, Ytest, {"theta" : np.zeros(((it + 1) * 3 + 1, 1)), "alpha" : 1e-2, "iter" : 2000000}, it + 1)
+        print("mse : ", ret[1])
+        print("r2 score :", ret[2])
         models.update({it + 1 : ret})
     dump(models, f)
     f.close()
