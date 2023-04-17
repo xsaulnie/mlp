@@ -55,7 +55,7 @@ def vec_log_loss_(y, y_hat, eps=1e-15):
     if not y.shape[0] == y_hat.shape[0]:
         return None
 
-    logv = np.vectorize(mat.log)
+    logv = np.vectorize(lambda x : mat.log(x) + eps)
     return ( -1/ y.shape[0] * ( np.dot(y.T, logv(y_hat)) + np.dot ((np.ones((y.shape[0], 1)) - y).T, logv( np.ones((y.shape[0], 1)) - y_hat))))[0][0]
 
 if __name__ == "__main__":

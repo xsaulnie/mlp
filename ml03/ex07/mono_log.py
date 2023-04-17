@@ -165,7 +165,7 @@ def parcing_arg(argv):
     num = kwarg["-zipcode"]
 
     if (num != "0" and num != "1" and num != "2" and num != "3"):
-        print("Error : Zipcode is not a correct number")
+        print("Error : zipcode is not a correct number")
         return -1
     return(int(num))
 
@@ -217,6 +217,7 @@ def correct_ratio(Y_hat, Ytest, zipc):
 
     print("Result : %d correct estimations out of %d test" % (correct, Y_hat.shape[0]))
     print("Accurancy : %d/%d meaning %.6f %%, with %d false positiv and %d tests missed (false negativ)" % (correct, Y_hat.shape[0], correct/Y_hat.shape[0]*100, false_pos, missed))
+    return (correct, Y_hat.shape[0], correct/Y_hat.shape[0] * 100, false_pos, missed)
 
 if __name__ == "__main__":
 
@@ -244,15 +245,16 @@ if __name__ == "__main__":
     Ytrain = planet_filter(Ytrain, float(zipc))
 
     mlr = MyLogisticRegression(np.array([[0.], [0.], [0.], [0.]]),max_iter=200000, alpha=1e-2)
-    print(f"{planets[zipc]} 's logistical regression alpha=1e-2, max_iteration=2000000 from null thetas, fitting data...")
+    print(f"{planets[zipc]} 's logistical regression alpha=1e-2, max_iteration=200000 from null thetas, fitting data...")
     mlr.fit_(Xtrain, Ytrain)
     Yhat = mlr.predict_(Xtest)
-    Y_hat = prediction_filter(Yhat, 0.8)
+    Y_hat = prediction_filter(Yhat, 0.5)
     print("theta obtened : [[%.2f], [%.2f], [%.2f], [%.2f]]" % (mlr.theta[0][0], mlr.theta[1][0], mlr.theta[2][0], mlr.theta[3][0]))
     print("with a loss of %.6f" % (mlr.loss_(planet_filter(Ytest, zipc), Yhat)))
 
     print("After the fit, on tested data : ")
-    correct_ratio(Y_hat, Ytest, zipc)
+    st = correct_ratio(Y_hat, Ytest, zipc)
+    print(f"Our {planet[zipc]} 1 vs All Logistical Regression is very precise ! This is a success :)")
 
     datazip = []
     others = []
@@ -271,8 +273,8 @@ if __name__ == "__main__":
     others = np.array(others)
     detected = np.array(detected)
 
-
-    plt.title("Logistical Regression Visualization\nHeight of citizens in respect of their Weight")
+    plt.subplots_adjust(top=0.8) 
+    plt.title("Logistical Regression Visualization\nHeight of citizens in respect of their Weight\nAccurency %d/%d : %.2f %%\n%d false positiv and %d false negativ" % (st[0], st[1], st[2], st[3], st[4]))
     plt.scatter(datazip[:, 0], datazip[:, 1], label=planets[zipc], color="blue")
     plt.scatter(others[:, 0], others[:, 1], label="Other citizens", color="black")
     plt.scatter(detected[:, 0], detected[:, 1], label= "Prediction for "+ planet[zipc], color="red", marker='x', s=20)
@@ -282,7 +284,8 @@ if __name__ == "__main__":
 
     plt.show()
 
-    plt.title("Logistical Regression Visualization\nHeight of citizens in respect of their Bone density")
+    plt.subplots_adjust(top=0.8) 
+    plt.title("Logistical Regression Visualization\nHeight of citizens in respect of their Bone density\nAccurency %d/%d : %.2f %%\n%d false positiv and %d false negativ" % (st[0], st[1], st[2], st[3], st[4]))
     plt.scatter(datazip[:, 2], datazip[:, 1], label=planets[zipc], color="blue")
     plt.scatter(others[:, 2], others[:, 1], label="Other citizens", color="black")
     plt.scatter(detected[:, 2], detected[:, 1], label= "Prediction for "+planet[zipc], color="red", marker='x', s=20)
@@ -292,18 +295,13 @@ if __name__ == "__main__":
 
     plt.show()
 
-    plt.title("Logistical Regression Visualization\nBone density of citizens in respect of their Weight")
+    plt.subplots_adjust(top=0.8)
+    plt.title("Logistical Regression Visualization\nBone density of citizens in respect of their Weight\nAccurency %d/%d : %.2f %%\n%d false positiv and %d false negativ" % (st[0], st[1], st[2], st[3], st[4]))
     plt.scatter(datazip[:, 0], datazip[:, 2], label=planets[zipc], color="blue")
     plt.scatter(others[:, 0], others[:, 2], label="Other citizens", color="black")
-    plt.scatter(detected[:, 0], detected[:, 2], label= "Prediction for "+planet[zipc], color="red", marker='x', s=20)
+    plt.scatter(detected[:, 0], detected[:, 2], label= "Prediction for " + planet[zipc], color="red", marker='x', s=20)
     plt.legend()
     plt.xlabel('Weight (pounds)')
     plt.ylabel('Bone density')
+
     plt.show()
-
-
-
-
-
-
-

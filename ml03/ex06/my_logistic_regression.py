@@ -98,7 +98,8 @@ if __name__ == "__main__":
     Y = np.array([[1], [0], [1]])
     thetas = np.array([[2], [0.5], [7.1], [-4.3], [2.09]])
     mylr = MyLogisticRegression(thetas)
-
+    print("real value of Y")
+    print(Y)
     print("prediction before fit")
     Y_hat = mylr.predict_(X)
     print(Y_hat)
@@ -108,6 +109,7 @@ if __name__ == "__main__":
 
     print("fitting..")
     mylr.fit_(X, Y)
+    print("thetas resulting from fit :")
     print(mylr.theta)
 
     print("prediction after fit")

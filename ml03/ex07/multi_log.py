@@ -224,8 +224,8 @@ def correct_model(Y_res, Ytest):
         if (float(Y_res[idx]) == Ytest[idx][0]):
             correct = correct + 1
     print(f"Result : {correct} citizenship guessed correctly out of {Ytest.shape[0]} citizens of the test dataset", end=", ")
-    print("Precision : %d/%d, %.4f %%" % (correct, Ytest.shape[0], correct/Ytest.shape[0] * 100))
-    return ((correct, Ytest.shape[0], round(correct/Ytest.shape[0] * 100), 2))
+    print("Precision : %d/%d = %.4f %%" % (correct, Ytest.shape[0], correct/Ytest.shape[0] * 100))
+    return (correct, Ytest.shape[0], correct/Ytest.shape[0] * 100)
 
 
 if __name__ == '__main__':
@@ -254,14 +254,14 @@ if __name__ == '__main__':
     for planx in range(4):
         print(f"{planets[planx]} 's logistical regression alpha=1e-2, max_iteration=2000000 from null thetas, fitting data...")
         Yptrain = planet_filter(Ytrain, planx)
-        mlr = MyLogisticRegression(np.zeros((4, 1)), max_iter=2000, alpha=1e-2)
+        mlr = MyLogisticRegression(np.zeros((4, 1)), max_iter=5000, alpha=1e-2)
         mlr.fit_(Xtrain, Yptrain)
         Y_hat = mlr.predict_(Xtest)
         All_Y.append(Y_hat)
         print("theta obtened : [[%.2f], [%.2f], [%.2f], [%.2f]]" % (mlr.theta[0][0], mlr.theta[1][0], mlr.theta[2][0], mlr.theta[3][0]), end=" ")
         print("with a loss of %.6f" % (mlr.loss_(planet_filter(Ytest, planx), Y_hat)))
         print(f"Logistical Regression {planet[planx]} vs All precision : ")
-        correct_ratio(prediction_filter(Y_hat, 0.8), Ytest, planx)
+        correct_ratio(prediction_filter(Y_hat, 0.5), Ytest, planx)
         print()
 
     Y_res = []
@@ -278,6 +278,7 @@ if __name__ == '__main__':
 
     print("After the 4 ONE vs ALL Logistical regression, We predict each citizenship on the test dataset from our model.")
     stat = correct_model(Y_res, Ytest)
+    print("The Logistical Regression of the full citizenship of the testdataset is almost perfect !!!")
 
     true_data = []
     for planx in range(4):

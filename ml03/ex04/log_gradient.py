@@ -21,9 +21,13 @@ def logistic_predict_(x, theta):
         return None
     if theta.shape[1] != 1 or x.shape[1] != theta.shape[0] - 1:
         return None
-    X_prime = np.concatenate((np.ones((x.shape[0], 1)), x), axis=1).astype(float)
-    return (sigmoid_(np.matmul(X_prime, theta)))
-
+    res = []
+    for i in range(x.shape[0]):
+        ret = 0
+        for j in range(x.shape[1]):
+            ret = ret + x[i][j] * theta[j + 1][0]
+        res.append(ret + theta[0][0])
+    return (sigmoid_(np.array(res)))
 
 
 def log_gradient(x, y, theta):
@@ -43,19 +47,18 @@ def log_gradient(x, y, theta):
         return None
     if (y.shape[1] != 1 or x.shape[1] != theta.shape[0] - 1 or theta.shape[1] != 1):
         return None
-    grad = np.zeros((theta.shape[0], 1))
+    grad = []
     y_hat = logistic_predict_(x, theta)
 
-    ret = 0
-
-    x = np.concatenate((np.ones((x.shape[0], 1)), x), axis=1).astype(float)
-
-    for i in range(x.shape[1]):
+    for i in range(x.shape[1] + 1):
         ret = 0
         for j in range(x.shape[0]):
-            ret = ret + (y_hat[j] - y[j]) * x[j][i]
-        grad[i] = ret / x.shape[0]
-    return grad 
+            if (i != 0):
+                ret = ret + (y_hat[j] - y[j]) * x[j][i - 1]
+            else:
+                ret = ret + (y_hat[j] - y[j])
+        grad.append(ret / x.shape[0])
+    return  np.array(grad)
 
 if __name__ == "__main__":
     print("Exemple 1")

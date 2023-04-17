@@ -69,7 +69,7 @@ def confusion_matrix_(y_true, y_hat, labels=None, df_option=False):
                     num = num + 1
             row.append(num)
         ret.append(row)
-    #ret = np.array(ret)
+
     if df_option is True:
         return pd.DataFrame(data=ret, index=listlabel, columns=listlabel)
     return(np.array(ret))
@@ -87,4 +87,4 @@ if __name__ == "__main__":
     print("Exemple 3")
     print(confusion_matrix_(y, y_hat, df_option=True), end='\n\n')
     print("Exemple 4")
-    print(confusion_matrix_(y, y_hat, labels=['dog', 'norminet'], df_option=True))
+    print(confusion_matrix_(y, y_hat, labels=['bird', 'dog'], df_option=True))
