@@ -53,7 +53,7 @@ def l2(theta):
 if __name__ == "__main__":
     print("Exemple from subject\n")
     x = np.array([2, 14, -13, 5, 12, 4, -19]).reshape((-1, 1))
-    print("x matrix\n")
+    print("theta matrix\n")
     print(x, end="\n\n")
     print("Exemple 1\n")
     print(iterative_l2(x), end="\n\n")

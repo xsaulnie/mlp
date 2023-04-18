@@ -228,7 +228,6 @@ def f1_score_(y, y_hat, pos_label=1):
             else:
                 st['fp'] = st['fp'] + 1
 
-    #print(st)
     if (st['tp'] == 0):
         return float(0)
 
@@ -242,6 +241,25 @@ def f1_score_(y, y_hat, pos_label=1):
         return float('inf')
 
     return ((2 * prec * reca) / (prec + reca))
+
+def correct_ratio2(Y_hat, Ytest, zipc):
+    correct = 0
+    false_pos = 0
+    missed = 0
+
+    Y_test = planet_filter(Ytest, zipc)
+
+    for idx in range(Y_hat.shape[0]):
+        if (Y_hat[idx][0] == Y_test[idx][0]):
+            correct = correct + 1
+        else:
+            if Y_hat[idx][0] == 1.:
+                false_pos = false_pos + 1
+            else:
+                missed = missed + 1
+
+    print("Result : %d correct estimations out of %d test" % (correct, Y_hat.shape[0]))
+    print("Accurancy : %d/%d meaning %.4f %%, with %d false positiv and %d tests missed (false negativ)" % (correct, Y_hat.shape[0], correct/Y_hat.shape[0]*100, false_pos, missed))
 
 def planet_filter(Y, zipc):
     Y_ret = np.copy(Y)
@@ -268,8 +286,8 @@ def train_best(lamb, planets, planet, Xtrain, Ytrain, Xtest, Ytest):
     info = []
     for curplan in range(4):
         Ytrain1 = planet_filter(Ytrain, curplan)
-        mlr = MyLogisticRegression(np.array([[0.], [0.], [0.], [0.], [0.], [0.], [0.], [0.], [0.], [0.]]),max_iter=100000, alpha=1e-2, penalty='l2', lambda_=lamb)
-        print(f"{planets[curplan]} vs All 's logistical regression alpha=1e-2, lambda={lamb}, max_iteration=1000000 from null thetas, fitting data...")
+        mlr = MyLogisticRegression(np.array([[0.], [0.], [0.], [0.], [0.], [0.], [0.], [0.], [0.], [0.]]), max_iter=100000, alpha=0.1, penalty='l2', lambda_=lamb)
+        print(f"{planets[curplan]} vs All 's logistical regression alpha=0.1, lambda={lamb}, max_iteration=100000 from null thetas, fitting data...")
         Xpoly = add_polynomial_features(Xtrain, 3)
         mlr.fit_(Xpoly, Ytrain1)
         Yhat = mlr.predict_(add_polynomial_features(Xtest, 3))
@@ -280,6 +298,8 @@ def train_best(lamb, planets, planet, Xtrain, Ytrain, Xtest, Ytest):
         print("theta obtened : [[%.2f], [%.2f], [%.2f], [%.2f]]" % (mlr.theta[0][0], mlr.theta[1][0], mlr.theta[2][0], mlr.theta[3][0]))
         print("with a loss of %.6f" % (mlr.loss_(planet_filter(Ytest, curplan), Yhat)))
         print("f1 score, planet %s, lambda %.1f : %f" % (planet[curplan], lamb, f1sc))
+        correct_ratio2(Y_hat, Ytest, curplan)
+        print()
 
     Y_res = []
     for lin in range(Xtest.shape[0]):
@@ -342,6 +362,7 @@ if __name__ == "__main__":
 
     lambdas = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
+
     f = open("models.pickle", "rb")
     modelr = load(f)
 
@@ -362,13 +383,13 @@ if __name__ == "__main__":
     plt.show()
 
 
+    X_big = np.concatenate((Xtrain, Xcross), axis=0)
+    Y_big = np.concatenate((Ytrain, Ycross), axis=0)
+    ret = train_best(0.1, planets, planet, X_big, Y_big, Xtest, Ytest)
 
-    ret = train_best(0.0, planets, planet, Xtrain, Ytrain, Xtest, Ytest)
-
-
-    f = open("best.pickle", "wb")
-    dump(ret, f)
-    f.close()
+    if ret == None:
+        print("none")
+        sys.exit()
 
     for curplan in range(4):
         plt.subplot(2, 2, curplan + 1)
@@ -465,7 +486,3 @@ if __name__ == "__main__":
         plt.title(f"{planet[curplan]} vs ALL logistical regression\nMax: lambda={lambdas[f1p.index(max(f1p))]}")
     plt.suptitle("Displaying f1 score on the test dataset \nfor various lambdas of the logistical regression")
     plt.show()
-    
-
-
-

@@ -53,7 +53,7 @@ class MyLogisticRegression():
         if (penalty == 'l2'):
             return ((np.matmul(X_prime.T, (MyLogisticRegression.sigmoid(np.matmul(X_prime, theta)) - y)) + lambda_ * theta_prime) / x.shape[0])
         if penalty is None:
-            return (np.matmul(X_prime.T, (MyLogisticRegression.sigmoid(np.matmul(X_prime, theta)) - y))  / x.shape[0])
+            return (np.matmul(X_prime.T, (MyLogisticRegression.sigmoid(np.matmul(X_prime, theta)) - y)) / x.shape[0])
 
     def predict_(self, x):
         if (not MyLogisticRegression.check_matix(x)):

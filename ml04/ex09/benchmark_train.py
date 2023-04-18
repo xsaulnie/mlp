@@ -8,6 +8,8 @@ from solar_system_census import add_polynomial_features
 from solar_system_census import data_spliter
 from solar_system_census import load_data
 from solar_system_census import planet_filter
+from solar_system_census import prediction_filter
+from solar_system_census import f1_score_
 from pickle import *
 
 
@@ -35,7 +37,7 @@ if __name__ == "__main__":
 
     lambdas = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
-    f = open("models2.pickle", "wb")
+    f = open("models.pickle", "wb")
     models={}
 
     for curplan in range(4):

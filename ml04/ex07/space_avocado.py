@@ -258,9 +258,14 @@ def train_best(X, Y, Xtest, Ytest, order, lambda_):
     mri = MyRidge(thetas=np.zeros((order * X.shape[1] + 1, 1)), alpha=1e-2, max_iter=200000, lambda_=lambda_)
     Xpol = add_polynomial_features(X, order)
     ret = mri.fit_(Xpol, Y)
+    print("Thet found after fit")
+    print(mri.thetas)
     Y_hat = mri.predict_(add_polynomial_features(Xtest, order))
     mse = MyRidge.mse_(Ytest, Y_hat)
     r2 = MyRidge.r2score_(Ytest, Y_hat)
+    print("Mean square error on test dataset :", mse)
+    print("r2 score on test dataset :", r2)
+    print("This model seem to be quite convincing ;)")
     return (mri.thetas, mse, r2, Y_hat)
 
 if __name__ == "__main__":
@@ -274,11 +279,47 @@ if __name__ == "__main__":
     X = df[['weight', 'prod_distance', 'time_delivery']].to_numpy()
     Y = df[['target']].to_numpy()
     (Xtrain, Xcross, Xtest, Ytrain, Ycross, Ytest, Rtest, RYtrain) = data_spliter(X, Y, 0.5, normilize=True)
-    print("Spliting data, training : %d x %d, cross validation : %d x %d, testing : %d x %d" % (Xtrain.shape[0], Xtrain.shape[1], Xcross.shape[0],  Xcross.shape[1], Xtest.shape[0], Xtest.shape[1]))
+    print("Spliting data, training : %d x %d, cross validation : %d x %d, testing : %d x %d" % (Xtrain.shape[0], Xtrain.shape[1], Xcross.shape[0],  Xcross.shape[1], Xtest.shape[0], Xtest.shape[1]), end='\n\n')
 
     f = open("models.pickle", "rb")
     models = load(f)
     lamblist = [0, 0.2, 0.4, 0.6, 0.8, 1]
+
+    print("Determining best model from models.pickle.", end='\n\n')
+
+    for order in range(1, 5):
+        plt.subplot(2, 2, order)
+        plt.xlabel("lambdas", loc='left')
+        plt.ylabel("mean square error")
+        plt.title("Order %d" % (order))
+
+        mse = []
+        for idx in lamblist:
+            mse.append(models[order][idx][1] * 10000)
+
+        plt.plot(lamblist, mse, '-o')
+
+    plt.suptitle(f"Ridge Regression mean square error\nDepending on lambda and order on Cross Dataset")
+
+    plt.show()
+
+    for order in range(1, 5):
+        plt.subplot(2, 2, order)
+        plt.xlabel("lambdas", loc='left')
+        plt.ylabel("r2 score")
+        plt.title("Order %d" % (order))
+
+        r2 = []
+        for idx in lamblist:
+            r2.append(models[order][idx][2])
+
+        plt.plot(lamblist, r2, '-o', color='red')
+
+    plt.suptitle(f"Ridge Regression r2 Score\nDepending on lambda and order on Cross Dataset")
+
+    plt.show()
+
+    print("Training best model Ridge Regression for lambda=0 order=4 with parameters alpha=0.02, max_iteration=200000...")
 
     best = train_best(Xtrain, Ytrain, Xtest, Ytest, 4, 0.0)
     Y_hat = antiminmax(RYtrain, best[3])
@@ -303,37 +344,7 @@ if __name__ == "__main__":
 
 
 
-    for order in range(1, 5):
-        plt.subplot(2, 2, order)
-        plt.xlabel("lambdas")
-        plt.ylabel("mean square error")
-        plt.title("Order %d" % (order))
 
-        mse = []
-        for idx in lamblist:
-            mse.append(models[order][idx][1] * 10000)
-
-        plt.plot(lamblist, mse, '-o')
-
-    plt.suptitle(f"Ridge Regression mean square error\nDepending on lambda and order")
-
-    plt.show()
-
-    for order in range(1, 5):
-        plt.subplot(2, 2, order)
-        plt.xlabel("lambdas")
-        plt.ylabel("r2 score")
-        plt.title("Order %d" % (order))
-
-        r2 = []
-        for idx in lamblist:
-            r2.append(models[order][idx][2])
-
-        plt.plot(lamblist, r2, '-o', color='red')
-
-    plt.suptitle(f"Ridge Regression r2 Score\nDepending on lambda and order")
-
-    plt.show()
 
     
 

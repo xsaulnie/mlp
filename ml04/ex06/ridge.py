@@ -112,8 +112,9 @@ class MyRidge():
         if (y.shape[1] != 1 or y_hat.shape[1] != 1):
             return None
 
-        sup_rige = MyRidge.l2(self.thetas) * self.lambda_
-        return(((y_hat - y) * (y_hat - y)) + sup_rige)
+        #sup_rige = MyRidge.l2(self.thetas) * self.lambda_
+        #return(((y_hat - y) * (y_hat - y)) + (sup_rige / y.shape[0]))
+        return ((y_hat - y) * (y_hat - y))
 
     def loss_(self, y, y_hat):
         if not MyRidge.check_matix(y) or not MyRidge.check_matix(y_hat):
@@ -142,7 +143,6 @@ if __name__ == "__main__":
     print(y_hat)
     print("Loss element from each datapoint :")
     print(mri.loss_elem_(Y, y_hat))
-    print(sum(mri.loss_elem_(Y, y_hat)) / 3)
     print("Total loss by using a mean on loss elements :")
     print(mri.loss_(Y, y_hat))
 
@@ -151,7 +151,7 @@ if __name__ == "__main__":
     print("fiting data for ", mri.get_params_())
     mri.fit_(X, Y)
     print("theta result from fiting :")
-    print(mri.thetas)
+    print("ridge params : ", mri.thetas)
     print("prediction after fit :")
     y_hat = mri.predict_(X)
     print(y_hat)
@@ -160,11 +160,10 @@ if __name__ == "__main__":
 
     print("Loss elems and loss after fit :")
     print(mri.loss_elem_(Y,y_hat))
-    print(sum(mri.loss_elem_(Y, y_hat)) / 6)
     print("total loss : ", mri.loss_(Y, y_hat))
     print("The ridge-linear regression seeem to be quite successfull :)")
 
-    mri.set_params_(thetas=[[20.], [3.], [0.], [1.], [0.]], lambda_=0., alpha=1e-4, max_iter=2000000)
+    mri.set_params_(thetas=[[20.], [3.], [0.], [1.], [0.]], lambda_=0.1, alpha=1e-4, max_iter=2000000)
     print("Using regularisation for ridge regression, fiting data for ", mri.get_params_())
     mri.fit_(X, Y)
     print("theta result from fiting :")
@@ -176,6 +175,5 @@ if __name__ == "__main__":
     print(Y)
     print("Loss elems and loss after fit :")
     print(mri.loss_elem_(Y,y_hat))
-    print(sum(mri.loss_elem_(Y, y_hat)) / 6)
     print("total loss : ", mri.loss_(Y, y_hat))
     print("Ridge regression, with improved params, even better !")
